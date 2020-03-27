@@ -9,13 +9,24 @@ import Combine
 struct Client {
     private let server: String
 
-    init(_ server: String = "http://127.0.0.1:8114") {
-        self.server = server
+    init(_ server: String) {
+        if server.last == "/" {
+            self.server = String(server.dropLast())
+        } else {
+            self.server = server
+        }
+    }
+
+    func publisher(for endpoint: Endpoint) -> AnyPublisher<Data, Never> {
+        URLSession.shared
+            .dataTaskPublisher(for: makeRequest(endpoint: endpoint))
+            .map(\.data)
+            .replaceError(with: Data())
+            .eraseToAnyPublisher()
     }
 
     private func makeRequest(endpoint: Endpoint) -> URLRequest {
-        // TODO: construct url components
-        var components = URLComponents(string: server)!
+        var components = URLComponents(string: makeUrl(endpoint: endpoint))!
         components.queryItems = [
             // URLQueryItem(name: "name", value: "value"),
         ]
@@ -26,16 +37,25 @@ struct Client {
 
         request.httpMethod = "POST"
         // TODO: build http body
-        request.httpBody = "todo".data(using: .utf8)
+        request.httpBody = "".data(using: .utf8)
 
         return request
+    }
+
+    private func makeUrl(endpoint: Endpoint) -> String {
+        switch endpoint {
+        case .holderCells(let pubkeyHash):
+            return "\(server)/holders/\(pubkeyHash)/cells"
+        case .builderCells(let pubkeyHash):
+            return "\(server)/builders/\(pubkeyHash)/cells"
+        }
     }
 }
 
 extension Client {
     enum Endpoint {
-        case lenderCells
-        case borrowerCells
+        case holderCells(pubkeyHash: String)
+        case builderCells(pubkeyHash: String)
         // TODO
     }
 }

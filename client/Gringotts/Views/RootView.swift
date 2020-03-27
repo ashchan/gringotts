@@ -30,6 +30,9 @@ struct RootView: View {
         .onReceive(showSettingViewTriggered) { _ in
             self.showSettingsView = true
         }
+        .onAppear() {
+            self.store.testApiServer()
+        }
     }
 }
 
