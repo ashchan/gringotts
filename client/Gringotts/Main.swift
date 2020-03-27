@@ -24,14 +24,9 @@ class HostingController: NSHostingController<AnyView> {
             index = .lender
         }
         store.state.viewTab.selected = index
-        print("Switch to view(tab) \(store.state.viewTab.selected)")
     }
 
     @IBAction func showSettings(_ sender: Any) {
-        NotificationCenter.default.post(name: .showSettingsView, object: nil)
+        store.showSettingsView()
     }
-}
-
-extension Notification.Name {
-    static let showSettingsView = Notification.Name("showSettingsView")
 }

@@ -14,29 +14,6 @@ struct BorrowerView: View {
     }
 }
 
-struct BorrowerMasterView: View {
-    var body: some View {
-        VStack {
-            Text("Builder Holder")
-            Spacer()
-        }
-        .frame(minWidth: 220, maxWidth: 800)
-    }
-}
-
-struct BorrowerDetailView: View {
-    var body: some View {
-        List {
-            Text("Builder Detail")
-                .font(.largeTitle)
-                .padding()
-
-        }
-        .onAppear {
-        }
-    }
-}
-
 struct BorrowerView_Previews: PreviewProvider {
     static var previews: some View {
         BorrowerView()

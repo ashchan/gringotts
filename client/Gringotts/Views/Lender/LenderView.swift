@@ -14,29 +14,6 @@ struct LenderView: View {
     }
 }
 
-struct LenderMasterView: View {
-    var body: some View {
-        VStack {
-            Text("Hello Holder")
-            Spacer()
-        }
-        .frame(minWidth: 220, maxWidth: 800)
-    }
-}
-
-struct LenderDetailView: View {
-    var body: some View {
-        List {
-            Text("Holder Detail")
-                .font(.largeTitle)
-                .padding()
-
-        }
-        .onAppear {
-        }
-    }
-}
-
 struct LenderView_Previews: PreviewProvider {
     static var previews: some View {
         LenderView()

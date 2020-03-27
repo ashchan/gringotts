@@ -19,7 +19,7 @@ struct MarketMasterView: View {
             }
         }
         .listStyle(SidebarListStyle())
-        .frame(minWidth: 220, maxWidth: 800)
+        .frame(minWidth: 220, maxWidth: 400)
     }
 }
 

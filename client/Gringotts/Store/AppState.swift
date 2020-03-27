@@ -24,5 +24,11 @@ extension AppState {
     struct Settings {
         @UserDefault("Settings.APIServer", defaultValue: "http://18.162.232.6:3000")
         var apiServer: String
+
+        @UserDefault("Settings.HolderAddress", defaultValue: "")
+        var holderAddress: String
+
+        @UserDefault("Settings.BuilderAddress", defaultValue: "")
+        var builderAddress: String
     }
 }
