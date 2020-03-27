@@ -21,7 +21,6 @@
 		1A1D24E9242DB68B002B230C /* MarketMasterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24E8242DB68B002B230C /* MarketMasterView.swift */; };
 		1A1D24EC242DD014002B230C /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24EB242DD014002B230C /* Cell.swift */; };
 		1A1D24EE242DD190002B230C /* Decoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24ED242DD190002B230C /* Decoder.swift */; };
-		1A1D24F1242DD1D2002B230C /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24F0242DD1D2002B230C /* Response.swift */; };
 		1A1D24F3242DD250002B230C /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24F2242DD250002B230C /* Client.swift */; };
 		1A1D24F6242DD8DD002B230C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24F5242DD8DD002B230C /* SettingsView.swift */; };
 		1A1D24F9242DF12E002B230C /* UserDefault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24F8242DF12E002B230C /* UserDefault.swift */; };
@@ -49,7 +48,6 @@
 		1A1D24E8242DB68B002B230C /* MarketMasterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketMasterView.swift; sourceTree = "<group>"; };
 		1A1D24EB242DD014002B230C /* Cell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cell.swift; sourceTree = "<group>"; };
 		1A1D24ED242DD190002B230C /* Decoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Decoder.swift; sourceTree = "<group>"; };
-		1A1D24F0242DD1D2002B230C /* Response.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
 		1A1D24F2242DD250002B230C /* Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
 		1A1D24F5242DD8DD002B230C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		1A1D24F8242DF12E002B230C /* UserDefault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefault.swift; sourceTree = "<group>"; };
@@ -167,7 +165,6 @@
 			isa = PBXGroup;
 			children = (
 				1A1D24ED242DD190002B230C /* Decoder.swift */,
-				1A1D24F0242DD1D2002B230C /* Response.swift */,
 				1A1D24F2242DD250002B230C /* Client.swift */,
 			);
 			path = API;
@@ -268,7 +265,6 @@
 				1A1D24E5242DAF9B002B230C /* MarketView.swift in Sources */,
 				1A1D24E2242DAAEC002B230C /* AppState.swift in Sources */,
 				1A1D24D7242D95EB002B230C /* RootView.swift in Sources */,
-				1A1D24F1242DD1D2002B230C /* Response.swift in Sources */,
 				1A1D24E9242DB68B002B230C /* MarketMasterView.swift in Sources */,
 				1A1D250C242DF971002B230C /* LenderMasterView.swift in Sources */,
 				1A1D24F3242DD250002B230C /* Client.swift in Sources */,

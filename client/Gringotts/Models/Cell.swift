@@ -14,7 +14,7 @@ struct Cell: Decodable, Identifiable {
 }
 
 struct LeaseInfo: Decodable {
-    let holderLock: String
+    let holderPubkeyHash: String
     let builderPubkeyHash: String
     let coinHash: String
     let leasePeriod: String
