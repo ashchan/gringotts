@@ -6,9 +6,9 @@ import { createLeaseCell } from "./utilities";
 import { inspect } from "util";
 import { argv, exit } from "process";
 
-if (argv.length != 9) {
+if (argv.length != 10) {
   console.log(
-    "Usage: node create_lease_cell.js <private key> <coin hash> <holder lock> <builder pubkey hash> <lease period> <overdue period> <capacity to lease>"
+    "Usage: node create_lease_cell.js <private key> <coin hash> <holder lock> <builder pubkey hash> <lease period> <overdue period> <amount per period> <capacity to lease>"
   );
   exit(1);
 }
@@ -28,9 +28,10 @@ client.on("connect", async () => {
       builder_pubkey_hash: argv[5],
       lease_period: "0x" + BigInt(argv[6]).toString(16),
       overdue_period: "0x" + BigInt(argv[7]).toString(16),
+      amount_per_period: "0x" + BigInt(argv[8]).toString(16),
       last_payment_time: tip_number
     },
-    BigInt(argv[8]) * BigInt(100000000n)
+    BigInt(argv[9]) * BigInt(100000000n)
   );
   console.log("TX: ", inspect(tx, false, null, true));
   const result = await rpc.send_transaction(tx, "passthrough");

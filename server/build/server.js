@@ -27495,7 +27495,7 @@ class Collector {
 
 function deserializeLeaseCellInfo(buffer) {
   buffer = new ckbJsToolkit.Reader(buffer).toArrayBuffer();
-  if (buffer.byteLength != 108) {
+  if (buffer.byteLength != 116) {
     throw new Error("Invalid array buffer length!");
   }
   const view = new DataView(buffer);
@@ -27505,7 +27505,8 @@ function deserializeLeaseCellInfo(buffer) {
     coin_hash: new ckbJsToolkit.Reader(buffer.slice(52, 84)).serializeJson(),
     lease_period: "0x" + view.getBigUint64(84, true).toString(16),
     overdue_period: "0x" + view.getBigUint64(92, true).toString(16),
-    last_payment_time: "0x" + view.getBigUint64(100, true).toString(16)
+    last_payment_time: "0x" + view.getBigUint64(100, true).toString(16),
+    amount_per_period: "0x" + view.getBigUint64(108, true).toString(16)
   };
 }
 
@@ -27565,7 +27566,7 @@ app.post("/builders/:builder_pubkey_hash/cells", async (req, res) => {
 client.on("connect", () => {
   nohm.Nohm.setClient(client);
   const indexer = new Indexer(rpc, client, {
-    log: () => null
+    /* log: () => null */
   });
   indexer.start();
 

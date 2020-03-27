@@ -61,7 +61,7 @@ export function validateLeaseCellInfo(leaseCellInfo) {
   if (reader.length() !== 20) {
     throw new Error("Invalid length for builder_pubkey_hash");
   }
-  ["lease_period", "overdue_period", "last_payment_time"].forEach(key => {
+  ["lease_period", "overdue_period", "last_payment_time", "amount_per_period"].forEach(key => {
     if (!leaseCellInfo[key]) {
       throw Error(`${key} does not exist!`);
     }
@@ -77,7 +77,7 @@ export function validateLeaseCellInfo(leaseCellInfo) {
 
 export function serializeLeaseCellInfo(leaseCellInfo) {
   validateLeaseCellInfo(leaseCellInfo);
-  const array = new Uint8Array(108);
+  const array = new Uint8Array(116);
   array.set(
     new Uint8Array(new Reader(leaseCellInfo.holder_lock).toArrayBuffer()),
     0
@@ -96,12 +96,13 @@ export function serializeLeaseCellInfo(leaseCellInfo) {
   view.setBigUint64(84, BigInt(leaseCellInfo.lease_period), true);
   view.setBigUint64(92, BigInt(leaseCellInfo.overdue_period), true);
   view.setBigUint64(100, BigInt(leaseCellInfo.last_payment_time), true);
+  view.setBigUint64(108, BigInt(leaseCellInfo.amount_per_period), true);
   return new Reader(view.buffer);
 }
 
 export function deserializeLeaseCellInfo(buffer) {
   buffer = new Reader(buffer).toArrayBuffer();
-  if (buffer.byteLength != 108) {
+  if (buffer.byteLength != 116) {
     throw new Error("Invalid array buffer length!");
   }
   const view = new DataView(buffer);
@@ -111,7 +112,8 @@ export function deserializeLeaseCellInfo(buffer) {
     coin_hash: new Reader(buffer.slice(52, 84)).serializeJson(),
     lease_period: "0x" + view.getBigUint64(84, true).toString(16),
     overdue_period: "0x" + view.getBigUint64(92, true).toString(16),
-    last_payment_time: "0x" + view.getBigUint64(100, true).toString(16)
+    last_payment_time: "0x" + view.getBigUint64(100, true).toString(16),
+    amount_per_period: "0x" + view.getBigUint64(108, true).toString(16)
   };
 }
 

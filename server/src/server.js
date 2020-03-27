@@ -63,7 +63,7 @@ app.post("/builders/:builder_pubkey_hash/cells", async (req, res) => {
 client.on("connect", () => {
   Nohm.setClient(client);
   const indexer = new nohm.Indexer(rpc, client, {
-    log: () => null
+    /* log: () => null */
   });
   indexer.start();
 
