@@ -18,7 +18,8 @@ struct MarketDetailView: View {
                 .font(.subheadline)
                 .foregroundColor(.white)
                 .padding(30)
-                .background(Rectangle().cornerRadius(10).foregroundColor(Color.gray.opacity(0.8)))
+                .background(Color.gray.opacity(0.8))
+                .cornerRadius(10)
         }.frame(minWidth: 500)
     }
 }
