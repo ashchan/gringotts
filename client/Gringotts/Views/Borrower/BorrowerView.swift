@@ -20,13 +20,13 @@ struct BorrowerMasterView: View {
             Text("Builder Holder")
             Spacer()
         }
-        .frame(width: 280)
+        .frame(minWidth: 220, maxWidth: 800)
     }
 }
 
 struct BorrowerDetailView: View {
     var body: some View {
-        List{
+        List {
             Text("Builder Detail")
                 .font(.largeTitle)
                 .padding()

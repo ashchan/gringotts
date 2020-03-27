@@ -6,14 +6,16 @@
 import SwiftUI
 
 struct RootView: View {
-    private var showLenderView = false
+    @EnvironmentObject private var store: Store
 
     var body: some View {
         HStack {
-            if showLenderView {
-                LenderView()
-            } else {
+            if store.state.viewTab.selected == .borrower {
                 BorrowerView()
+            } else if store.state.viewTab.selected == .market {
+                MarketView()
+            } else {
+                LenderView()
             }
         }
     }
@@ -21,6 +23,6 @@ struct RootView: View {
 
 struct RootView_Previews: PreviewProvider {
     static var previews: some View {
-        RootView()
+        RootView().environmentObject(Store())
     }
 }

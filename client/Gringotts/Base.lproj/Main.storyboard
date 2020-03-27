@@ -706,10 +706,13 @@
                                             <segments>
                                                 <segment label="Holder" width="120" selected="YES"/>
                                                 <segment label="Builder" width="120" tag="1"/>
-                                                <segment label="Market" width="120" enabled="NO"/>
+                                                <segment label="Market" width="120"/>
                                             </segments>
                                         </segmentedCell>
                                     </segmentedControl>
+                                    <connections>
+                                        <action selector="selectTab:" target="Oky-zY-oP4" id="FbH-51-ApQ"/>
+                                    </connections>
                                 </toolbarItem>
                             </allowedToolbarItems>
                             <defaultToolbarItems>

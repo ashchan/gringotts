@@ -20,13 +20,13 @@ struct LenderMasterView: View {
             Text("Hello Holder")
             Spacer()
         }
-        .frame(width: 280)
+        .frame(minWidth: 220, maxWidth: 800)
     }
 }
 
 struct LenderDetailView: View {
     var body: some View {
-        List{
+        List {
             Text("Holder Detail")
                 .font(.largeTitle)
                 .padding()
