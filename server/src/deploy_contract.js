@@ -5,7 +5,14 @@ import { Nohm } from "nohm";
 import * as blockchain from "ckb-js-toolkit-contrib/src/blockchain";
 import * as nohm from "ckb-js-toolkit-contrib/src/cell_collectors/nohm";
 const { Collector } = nohm;
-import { publicKeyHash, ckbHash, createLeaseCell, assembleTransaction, fillSignatures, secpSign } from "./utilities";
+import {
+  publicKeyHash,
+  ckbHash,
+  createLeaseCell,
+  assembleTransaction,
+  fillSignatures,
+  secpSign
+} from "./utilities";
 import { argv, exit } from "process";
 import * as fs from "fs";
 import { inspect } from "util";
@@ -21,17 +28,22 @@ client.on("connect", async () => {
   Nohm.setClient(client);
 
   let binary = fs.readFileSync(argv[3]);
-  binary = binary.buffer.slice(0, binary.length);
-  const capacity = BigInt(binary.byteLength) * BigInt(100000000n) + BigInt(6100000000n);
+  binary = new Reader(binary.buffer.slice(0, binary.length));
+  const binaryHash = ckbHash(binary).serializeJson();
+  const capacity =
+    BigInt(binary.length()) * BigInt(100000000n) + BigInt(6100000000n);
   const privateKey = argv[2];
 
   const script = {
-    code_hash: "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
+    code_hash:
+      "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
     hash_type: "type",
     args: publicKeyHash(privateKey)
   };
   validators.ValidateScript(script);
-  const scriptHash = ckbHash(blockchain.SerializeScript(normalizers.NormalizeScript(script)));
+  const scriptHash = ckbHash(
+    blockchain.SerializeScript(normalizers.NormalizeScript(script))
+  );
   const collector = new Collector(rpc, {
     [nohm.KEY_LOCK_HASH]: scriptHash.serializeJson()
   });
@@ -43,8 +55,10 @@ client.on("connect", async () => {
     currentCells.push(cell);
     currentCapacity += BigInt(cell.cell_output.capacity);
 
-    if ((currentCapacity === targetCapacity) ||
-        (currentCapacity > targetCapacity + 6100000000n)) {
+    if (
+      currentCapacity === targetCapacity ||
+      currentCapacity > targetCapacity + 6100000000n
+    ) {
       break;
     }
   }
@@ -71,9 +85,7 @@ client.on("connect", async () => {
     inputs: currentCells,
     outputs: outputCells
   };
-  const {
-    tx, messagesToSign
-  } = assembleTransaction(txTemplate);
+  const { tx, messagesToSign } = assembleTransaction(txTemplate);
   const signatures = messagesToSign.map(({ message }) => {
     return secpSign(privateKey, message);
   });
@@ -81,23 +93,26 @@ client.on("connect", async () => {
   const result = await rpc.send_transaction(filledTx, "passthrough");
 
   const genesis = await rpc.get_block_by_number("0x0");
-  const cellDeps = [
-    {
-      dep_type: "dep_group",
-      out_point: {
-        tx_hash: genesis.transactions[1].hash,
-        index: "0x0"
+  const data = {
+    cell_deps: [
+      {
+        dep_type: "dep_group",
+        out_point: {
+          tx_hash: genesis.transactions[1].hash,
+          index: "0x0"
+        }
+      },
+      {
+        dep_type: "code",
+        out_point: {
+          tx_hash: result,
+          index: "0x0"
+        }
       }
-    },
-    {
-      dep_type: "code",
-      out_point: {
-        tx_hash: result,
-        index: "0x0"
-      }
-    }
-  ];
-  fs.writeFileSync("cell_deps.json", JSON.stringify(cellDeps));
+    ],
+    binary_hash: binaryHash
+  };
+  fs.writeFileSync("cell_deps.json", JSON.stringify(data));
 
   exit(0);
 });

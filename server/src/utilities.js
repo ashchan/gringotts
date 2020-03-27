@@ -26,7 +26,9 @@ export function ckbHash(buffer) {
 }
 
 export function publicKeyHash(privateKey) {
-  const publicKey = secp256k1.publicKeyCreate(new Uint8Array(new Reader(privateKey).toArrayBuffer()));
+  const publicKey = secp256k1.publicKeyCreate(
+    new Uint8Array(new Reader(privateKey).toArrayBuffer())
+  );
   const h = ckbHash(publicKey.buffer);
   return new Reader(h.toArrayBuffer().slice(0, 20)).serializeJson();
 }
@@ -34,7 +36,8 @@ export function publicKeyHash(privateKey) {
 export function secpSign(privateKey, message) {
   const { signature, recid } = secp256k1.ecdsaSign(
     new Uint8Array(new Reader(message).toArrayBuffer()),
-    new Uint8Array(new Reader(privateKey).toArrayBuffer()));
+    new Uint8Array(new Reader(privateKey).toArrayBuffer())
+  );
   const array = new Uint8Array(65);
   array.set(signature, 0);
   array.set([recid], 64);
@@ -75,12 +78,20 @@ export function validateLeaseCellInfo(leaseCellInfo) {
 export function serializeLeaseCellInfo(leaseCellInfo) {
   validateLeaseCellInfo(leaseCellInfo);
   const array = new Uint8Array(108);
-  array.set(new Uint8Array(
-    new Reader(leaseCellInfo.holder_lock).toArrayBuffer()), 0);
-  array.set(new Uint8Array(
-    new Reader(leaseCellInfo.builder_pubkey_hash).toArrayBuffer()), 32);
-  array.set(new Uint8Array(
-    new Reader(leaseCellInfo.coin_hash).toArrayBuffer()), 52);
+  array.set(
+    new Uint8Array(new Reader(leaseCellInfo.holder_lock).toArrayBuffer()),
+    0
+  );
+  array.set(
+    new Uint8Array(
+      new Reader(leaseCellInfo.builder_pubkey_hash).toArrayBuffer()
+    ),
+    32
+  );
+  array.set(
+    new Uint8Array(new Reader(leaseCellInfo.coin_hash).toArrayBuffer()),
+    52
+  );
   const view = new DataView(array.buffer);
   view.setBigUint64(84, BigInt(leaseCellInfo.lease_period), true);
   view.setBigUint64(92, BigInt(leaseCellInfo.overdue_period), true);
@@ -119,7 +130,7 @@ export function intToLeBuffer(i) {
 export function assembleTransaction(txTemplate) {
   const tx = {
     version: "0x0",
-    cell_deps: JSON.parse(fs.readFileSync("./cell_deps.json")),
+    cell_deps: JSON.parse(fs.readFileSync("./cell_deps.json")).cell_deps,
     header_deps: txTemplate.headers || [],
     inputs: txTemplate.inputs.map(i => {
       return {
@@ -132,7 +143,13 @@ export function assembleTransaction(txTemplate) {
     witnesses: txTemplate.inputs.map(i => i.witness || "0x")
   };
   validators.ValidateTransaction(tx);
-  const txHash = ckbHash(new Reader(blockchain.SerializeRawTransaction(normalizers.NormalizeRawTransaction(tx))));
+  const txHash = ckbHash(
+    new Reader(
+      blockchain.SerializeRawTransaction(
+        normalizers.NormalizeRawTransaction(tx)
+      )
+    )
+  );
   const messagesToSign = [];
   const used = txTemplate.inputs.map(_i => false);
   for (let i = 0; i < txTemplate.inputs.length; i++) {
@@ -145,18 +162,27 @@ export function assembleTransaction(txTemplate) {
       firstWitness = {};
     }
     const hasher = ckbHasher();
-    firstWitness.lock = "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
-    const serializedWitness = new Reader(blockchain.SerializeWitnessArgs(normalizers.NormalizeWitnessArgs(firstWitness)));
+    firstWitness.lock =
+      "0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+    const serializedWitness = new Reader(
+      blockchain.SerializeWitnessArgs(
+        normalizers.NormalizeWitnessArgs(firstWitness)
+      )
+    );
     tx.witnesses[i] = serializedWitness.serializeJson();
     hasher.update(new Uint8Array(txHash.toArrayBuffer()));
     hasher.update(new Uint8Array(intToLeBuffer(serializedWitness.length())));
     hasher.update(new Uint8Array(serializedWitness.toArrayBuffer()));
     for (let j = i + 1; j < txTemplate.inputs.length; j++) {
-      if (deep_equal(txTemplate.inputs[i].cell_output.lock,
-                     txTemplate.inputs[j].cell_output.lock)) {
+      if (
+        deep_equal(
+          txTemplate.inputs[i].cell_output.lock,
+          txTemplate.inputs[j].cell_output.lock
+        )
+      ) {
         used[j] = true;
         const w = new Reader(tx.witnesses[j]);
-        hasher.update(new Uint8Array(intToLeBuffer(w.length())))
+        hasher.update(new Uint8Array(intToLeBuffer(w.length())));
         hasher.update(new Uint8Array(w.toArrayBuffer()));
       }
     }
@@ -176,32 +202,49 @@ export function fillSignatures(tx, messagesToSign, signatures) {
     throw new Error("Invalid number of signatures!");
   }
   for (let i = 0; i < messagesToSign.length; i++) {
-    const witnessArgs = new blockchain.WitnessArgs(new Reader(
-      tx.witnesses[messagesToSign[i].index]));
+    const witnessArgs = new blockchain.WitnessArgs(
+      new Reader(tx.witnesses[messagesToSign[i].index])
+    );
     const newWitnessArgs = {
       lock: signatures[i]
     };
     const inputType = witnessArgs.getInputType();
     if (inputType.hasValue()) {
-      newWitnessArgs.input_type = new Reader(inputType.value().raw()).serializeJson();
+      newWitnessArgs.input_type = new Reader(
+        inputType.value().raw()
+      ).serializeJson();
     }
     const outputType = witnessArgs.getOutputType();
     if (outputType.hasValue()) {
-      newWitnessArgs.output_type = new Reader(outputType.value().raw()).serializeJson();
+      newWitnessArgs.output_type = new Reader(
+        outputType.value().raw()
+      ).serializeJson();
     }
-    tx.witnesses[messagesToSign[i].index] = new Reader(blockchain.SerializeWitnessArgs(normalizers.NormalizeWitnessArgs(newWitnessArgs))).serializeJson();
+    tx.witnesses[messagesToSign[i].index] = new Reader(
+      blockchain.SerializeWitnessArgs(
+        normalizers.NormalizeWitnessArgs(newWitnessArgs)
+      )
+    ).serializeJson();
   }
   return tx;
 }
 
-export async function createLeaseCell(rpc, privateKey, leaseCellInfo, capacity) {
+export async function createLeaseCell(
+  rpc,
+  privateKey,
+  leaseCellInfo,
+  capacity
+) {
   const script = {
-    code_hash: "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
+    code_hash:
+      "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
     hash_type: "type",
     args: publicKeyHash(privateKey)
   };
   validators.ValidateScript(script);
-  const scriptHash = ckbHash(blockchain.SerializeScript(normalizers.NormalizeScript(script)));
+  const scriptHash = ckbHash(
+    blockchain.SerializeScript(normalizers.NormalizeScript(script))
+  );
   const collector = new Collector(rpc, {
     [nohm.KEY_LOCK_HASH]: scriptHash.serializeJson()
   });
@@ -213,8 +256,10 @@ export async function createLeaseCell(rpc, privateKey, leaseCellInfo, capacity) 
     currentCells.push(cell);
     currentCapacity += BigInt(cell.cell_output.capacity);
 
-    if ((currentCapacity === targetCapacity) ||
-        (currentCapacity > targetCapacity + 6100000000n)) {
+    if (
+      currentCapacity === targetCapacity ||
+      currentCapacity > targetCapacity + 6100000000n
+    ) {
       break;
     }
   }
@@ -222,7 +267,8 @@ export async function createLeaseCell(rpc, privateKey, leaseCellInfo, capacity) 
     cell_output: {
       capacity: "0x" + BigInt(capacity).toString(16),
       lock: {
-        code_hash: "0x3de0499b41e86df8ef3fb4a5712a9439ad42bf9dfeebcbd959daf7e1fac575bd",
+        code_hash:
+          "0x3de0499b41e86df8ef3fb4a5712a9439ad42bf9dfeebcbd959daf7e1fac575bd",
         hash_type: "data",
         args: new Reader(serializeLeaseCellInfo(leaseCellInfo)).serializeJson()
       },
@@ -245,9 +291,7 @@ export async function createLeaseCell(rpc, privateKey, leaseCellInfo, capacity) 
     inputs: currentCells,
     outputs: outputCells
   };
-  const {
-    tx, messagesToSign
-  } = assembleTransaction(txTemplate);
+  const { tx, messagesToSign } = assembleTransaction(txTemplate);
   const signatures = messagesToSign.map(({ message }) => {
     return secpSign(privateKey, message);
   });

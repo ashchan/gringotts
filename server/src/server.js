@@ -1,10 +1,12 @@
 import express from "express";
+import bodyParser from "body-parser";
 import redis from "redis";
 import { RPC } from "ckb-js-toolkit";
 import { Nohm } from "nohm";
 import * as nohm from "ckb-js-toolkit-contrib/src/cell_collectors/nohm";
 
 const app = express();
+app.use(bodyParser.json());
 const port = 3000;
 
 app.get("/", async (req, res) => {
