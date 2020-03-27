@@ -1,0 +1,25 @@
+{
+  "name": "gringotts-server",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "rollup -c",
+    "start": "npm run build && node --experimental-repl-await --enable-source-maps build/server.js",
+    "fmt": "prettier --write \"{src,tests}/**/*.js\" rollup.config.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "ckb-js-toolkit": "^0.7.2",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^11.0.2",
+    "@rollup/plugin-json": "^4.0.2",
+    "@rollup/plugin-node-resolve": "^7.1.1",
+    "builtin-modules": "^3.1.0",
+    "prettier": "1.19.1",
+    "rollup": "^1.32.0"
+  }
+}
