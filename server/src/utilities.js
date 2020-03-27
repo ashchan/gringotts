@@ -84,7 +84,9 @@ export function serializeLeaseCellInfo(leaseCellInfo) {
   validateLeaseCellInfo(leaseCellInfo);
   const array = new Uint8Array(104);
   array.set(
-    new Uint8Array(new Reader(leaseCellInfo.holder_pubkey_hash).toArrayBuffer()),
+    new Uint8Array(
+      new Reader(leaseCellInfo.holder_pubkey_hash).toArrayBuffer()
+    ),
     0
   );
   array.set(

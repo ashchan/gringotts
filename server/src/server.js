@@ -146,7 +146,11 @@ app.post(
     }
     let { cell, info: leaseCellInfo } = cells[0];
     const payAmount = BigInt(leaseCellInfo.amount_per_period);
-    const txTemplate = await collectCellForFees(rpc, builder_pubkey_hash, payAmount + 100000000n);
+    const txTemplate = await collectCellForFees(
+      rpc,
+      builder_pubkey_hash,
+      payAmount + 100000000n
+    );
     leaseCellInfo.last_payment_time = (await rpc.get_tip_header()).number;
     txTemplate.inputs.push(cell);
     txTemplate.outputs.push({
@@ -165,14 +169,53 @@ app.post(
       cell_output: {
         capacity: "0x" + payAmount.toString(16),
         lock: {
-          code_hash: "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
+          code_hash:
+            "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
           hash_type: "type",
           args: leaseCellInfo.holder_pubkey_hash
         },
         type: null
       }
     });
-    console.log(inspect(txTemplate, false, null, true));
+    res.json(assembleTransaction(txTemplate));
+  }
+);
+
+app.post(
+  "/holders/:holder_pubkey_hash/cell/:tx_hash/:index/claim",
+  async (req, res) => {
+    const { holder_pubkey_hash, tx_hash, index } = req.params;
+    const collector = new nohm.Collector(
+      rpc,
+      {
+        [nohm.KEY_LOCK_CODE_HASH]: codeHash,
+        [nohm.KEY_OUT_POINT]: nohm.serializeOutPoint({ tx_hash, index })
+      },
+      {
+        skipCellWithContent: false
+      }
+    );
+    const cells = [];
+    for await (const cell of collector.collect()) {
+      const leaseCellInfo = deserializeLeaseCellInfo(
+        cell.cell_output.lock.args
+      );
+      if (leaseCellInfo.holder_pubkey_hash == holder_pubkey_hash) {
+        cells.push(cell);
+      }
+    }
+    if (cells.length === 0) {
+      res.sendStatus(404);
+      return;
+    }
+    const txTemplate = await collectCellForFees(rpc, holder_pubkey_hash);
+    txTemplate.inputs.push(cells[0]);
+    txTemplate.outputs[0].cell_output.capacity =
+      "0x" +
+      (
+        BigInt(txTemplate.outputs[0].cell_output.capacity) +
+        BigInt(cells[0].cell_output.capacity)
+      ).toString(16);
     res.json(assembleTransaction(txTemplate));
   }
 );
