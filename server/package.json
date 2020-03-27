@@ -19,7 +19,8 @@
     "fast-deep-equal": "^3.1.1",
     "nohm": "^2.2.3",
     "redis": "^3.0.2",
-    "secp256k1": "^4.0.0"
+    "secp256k1": "^4.0.0",
+    "uuid": "^7.0.2"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^11.0.2",

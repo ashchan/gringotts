@@ -19,7 +19,9 @@ module.exports = ["server", "create_lease_cell", "deploy_contract"].map(
         "blake2b",
         "secp256k1",
         "express",
-        "redis"
+        "redis",
+        "body-parser",
+        "uuid"
       ])
     };
   }

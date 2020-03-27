@@ -27,8 +27,7 @@ const client = redis.createClient();
 client.on("connect", async () => {
   Nohm.setClient(client);
 
-  let binary = fs.readFileSync(argv[3]);
-  binary = new Reader(binary.buffer.slice(0, binary.length));
+  const binary = new Reader("0x" + fs.readFileSync(argv[3], "hex"));
   const binaryHash = ckbHash(binary).serializeJson();
   const capacity =
     BigInt(binary.length()) * BigInt(100000000n) + BigInt(6100000000n);
