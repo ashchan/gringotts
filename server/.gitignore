@@ -1,1 +1,4 @@
 node_modules/
+build/
+devnet/
+cell_deps.json
