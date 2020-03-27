@@ -23,7 +23,7 @@ extension Store {
     func testApiServer() {
         let client = Client(state.settings.apiServer)
         client.publisher(for: .holderCells(pubkeyHash: "0xc8328aabcd9b9e8e64fbc566c4385c3bdeb219d7"))
-            .decode(type: [Cell].self, decoder: JSONDecoder.appDecoder)
+            .decode(type: [Cell].self, decoder: JSONDecoder.apiDecoder)
             .print()
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)

@@ -28,6 +28,10 @@
 		1A1D250E242DF988002B230C /* LenderDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D250D242DF987002B230C /* LenderDetailView.swift */; };
 		1A1D2510242DFD17002B230C /* BorrowerMasterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D250F242DFD17002B230C /* BorrowerMasterView.swift */; };
 		1A1D2512242DFD2F002B230C /* BorrowerDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D2511242DFD2F002B230C /* BorrowerDetailView.swift */; };
+		1A1D2514242EAB73002B230C /* Match.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D2513242EAB73002B230C /* Match.swift */; };
+		1A1D2516242EACC2002B230C /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D2515242EACC2002B230C /* Transaction.swift */; };
+		1A1D2518242EB277002B230C /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D2517242EB277002B230C /* Message.swift */; };
+		1A1D251A242EB6D7002B230C /* Encoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D2519242EB6D7002B230C /* Encoder.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +59,10 @@
 		1A1D250D242DF987002B230C /* LenderDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LenderDetailView.swift; sourceTree = "<group>"; };
 		1A1D250F242DFD17002B230C /* BorrowerMasterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BorrowerMasterView.swift; sourceTree = "<group>"; };
 		1A1D2511242DFD2F002B230C /* BorrowerDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BorrowerDetailView.swift; sourceTree = "<group>"; };
+		1A1D2513242EAB73002B230C /* Match.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Match.swift; sourceTree = "<group>"; };
+		1A1D2515242EACC2002B230C /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
+		1A1D2517242EB277002B230C /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		1A1D2519242EB6D7002B230C /* Encoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Encoder.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -157,6 +165,9 @@
 			isa = PBXGroup;
 			children = (
 				1A1D24EB242DD014002B230C /* Cell.swift */,
+				1A1D2513242EAB73002B230C /* Match.swift */,
+				1A1D2515242EACC2002B230C /* Transaction.swift */,
+				1A1D2517242EB277002B230C /* Message.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -165,6 +176,7 @@
 			isa = PBXGroup;
 			children = (
 				1A1D24ED242DD190002B230C /* Decoder.swift */,
+				1A1D2519242EB6D7002B230C /* Encoder.swift */,
 				1A1D24F2242DD250002B230C /* Client.swift */,
 			);
 			path = API;
@@ -259,6 +271,7 @@
 				1A1D24F9242DF12E002B230C /* UserDefault.swift in Sources */,
 				1A1D24F6242DD8DD002B230C /* SettingsView.swift in Sources */,
 				1A1D24DD242D9B71002B230C /* BorrowerView.swift in Sources */,
+				1A1D2514242EAB73002B230C /* Match.swift in Sources */,
 				1A1D250E242DF988002B230C /* LenderDetailView.swift in Sources */,
 				1A1D24E7242DB66F002B230C /* MarketDetailView.swift in Sources */,
 				1A1D24DB242D9B62002B230C /* LenderView.swift in Sources */,
@@ -267,10 +280,13 @@
 				1A1D24D7242D95EB002B230C /* RootView.swift in Sources */,
 				1A1D24E9242DB68B002B230C /* MarketMasterView.swift in Sources */,
 				1A1D250C242DF971002B230C /* LenderMasterView.swift in Sources */,
+				1A1D251A242EB6D7002B230C /* Encoder.swift in Sources */,
 				1A1D24F3242DD250002B230C /* Client.swift in Sources */,
 				1A1D24E0242DA961002B230C /* Store.swift in Sources */,
+				1A1D2516242EACC2002B230C /* Transaction.swift in Sources */,
 				1A1D24EC242DD014002B230C /* Cell.swift in Sources */,
 				1A1D2512242DFD2F002B230C /* BorrowerDetailView.swift in Sources */,
+				1A1D2518242EB277002B230C /* Message.swift in Sources */,
 				1A1D24D4242D9577002B230C /* Main.swift in Sources */,
 				1A1D24EE242DD190002B230C /* Decoder.swift in Sources */,
 				1A1D2510242DFD17002B230C /* BorrowerMasterView.swift in Sources */,

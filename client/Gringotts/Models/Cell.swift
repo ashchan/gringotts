@@ -7,7 +7,7 @@ import Foundation
 
 struct Cell: Decodable, Identifiable {
     let leaseInfo: LeaseInfo
-    let outPoint: OutPoint
+    let outPoint: Transaction.OutPoint
     let data: String?
 
     var id: String { outPoint.txHash + outPoint.index }
@@ -21,9 +21,4 @@ struct LeaseInfo: Decodable {
     let overduePeriod: String
     let lastPaymentTime: String
     let amountPerPeriod: String
-}
-
-struct OutPoint: Decodable {
-    let txHash: String
-    let index: String
 }
