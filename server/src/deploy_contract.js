@@ -81,27 +81,31 @@ client.on("connect", async () => {
       data: null
     });
   }
+  const genesis = await rpc.get_block_by_number("0x0");
+  let genesisDeps = [
+    {
+      dep_type: "dep_group",
+      out_point: {
+        tx_hash: genesis.transactions[1].hash,
+        index: "0x0"
+      }
+    }
+  ];
   const txTemplate = {
     inputs: currentCells,
-    outputs: outputCells
+    outputs: outputCells,
+    cellDeps: genesisDeps
   };
   const { tx, messagesToSign } = assembleTransaction(txTemplate);
   const signatures = messagesToSign.map(({ message }) => {
     return secpSign(privateKey, message);
   });
   const filledTx = fillSignatures(tx, messagesToSign, signatures);
+  console.log("TX: ", inspect(filledTx, false, null, true));
   const result = await rpc.send_transaction(filledTx, "passthrough");
 
-  const genesis = await rpc.get_block_by_number("0x0");
   const data = {
-    cell_deps: [
-      {
-        dep_type: "dep_group",
-        out_point: {
-          tx_hash: genesis.transactions[1].hash,
-          index: "0x0"
-        }
-      },
+    cell_deps: genesisDeps.concat([
       {
         dep_type: "code",
         out_point: {
@@ -109,7 +113,7 @@ client.on("connect", async () => {
           index: "0x0"
         }
       }
-    ],
+    ]),
     binary_hash: binaryHash
   };
   fs.writeFileSync("cell_deps.json", JSON.stringify(data));

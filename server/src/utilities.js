@@ -100,23 +100,18 @@ export function serializeLeaseCellInfo(leaseCellInfo) {
 }
 
 export function deserializeLeaseCellInfo(buffer) {
-  if (buffer instanceof Object && buffer.toArrayBuffer instanceof Function) {
-    buffer = buffer.toArrayBuffer();
-  }
-  if (!(buffer instanceof ArrayBuffer)) {
-    throw new Error("Input is not an array buffer!");
-  }
-  if (buffer.byteLength != 120) {
+  buffer = new Reader(buffer).toArrayBuffer();
+  if (buffer.byteLength != 108) {
     throw new Error("Invalid array buffer length!");
   }
   const view = new DataView(buffer);
   return {
     holder_lock: new Reader(buffer.slice(0, 32)).serializeJson(),
-    builder_lock: new Reader(buffer.slice(32, 64)).serializeJson(),
-    coin_hash: new Reader(buffer.slice(64, 96)).serializeJson(),
-    lease_period: "0x" + view.getBigUint64(96, true).toString(16),
-    overdue_period: "0x" + view.getBigUint64(104, true).toSring(16),
-    last_payment_time: "0x" + view.getBigUint64(112, true).toString(16)
+    builder_pubkey_hash: new Reader(buffer.slice(32, 52)).serializeJson(),
+    coin_hash: new Reader(buffer.slice(52, 84)).serializeJson(),
+    lease_period: "0x" + view.getBigUint64(84, true).toString(16),
+    overdue_period: "0x" + view.getBigUint64(92, true).toString(16),
+    last_payment_time: "0x" + view.getBigUint64(100, true).toString(16)
   };
 }
 
@@ -130,7 +125,7 @@ export function intToLeBuffer(i) {
 export function assembleTransaction(txTemplate) {
   const tx = {
     version: "0x0",
-    cell_deps: JSON.parse(fs.readFileSync("./cell_deps.json")).cell_deps,
+    cell_deps: txTemplate.cellDeps || JSON.parse(fs.readFileSync("./cell_deps.json")).cell_deps,
     header_deps: txTemplate.headers || [],
     inputs: txTemplate.inputs.map(i => {
       return {
@@ -267,14 +262,13 @@ export async function createLeaseCell(
     cell_output: {
       capacity: "0x" + BigInt(capacity).toString(16),
       lock: {
-        code_hash:
-          "0x3de0499b41e86df8ef3fb4a5712a9439ad42bf9dfeebcbd959daf7e1fac575bd",
+        code_hash: JSON.parse(fs.readFileSync("./cell_deps.json")).binary_hash,
         hash_type: "data",
         args: new Reader(serializeLeaseCellInfo(leaseCellInfo)).serializeJson()
       },
       type: null
     },
-    data: null
+    data: Reader.fromRawString("thisisaleasecell").serializeJson()
   };
   const outputCells = [leaseCell];
   if (currentCapacity > targetCapacity) {

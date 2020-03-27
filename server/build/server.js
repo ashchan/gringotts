@@ -8,7 +8,8 @@ var path = _interopDefault(require('path'));
 var util = require('util');
 var util__default = _interopDefault(util);
 var tty = _interopDefault(require('tty'));
-var fs = _interopDefault(require('fs'));
+var fs = require('fs');
+var fs__default = _interopDefault(fs);
 var net = _interopDefault(require('net'));
 var buffer = _interopDefault(require('buffer'));
 var string_decoder = _interopDefault(require('string_decoder'));
@@ -19,6 +20,7 @@ var redis = _interopDefault(require('redis'));
 var ckbJsToolkit = require('ckb-js-toolkit');
 var nohm = require('nohm');
 var blake2b = _interopDefault(require('blake2b'));
+require('secp256k1');
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
@@ -2410,8 +2412,8 @@ function createWritableStdioStream (fd) {
       break;
 
     case 'FILE':
-      var fs$1 = fs;
-      stream = new fs$1.SyncWriteStream(fd, { autoClose: false });
+      var fs = fs__default;
+      stream = new fs.SyncWriteStream(fd, { autoClose: false });
       stream._type = 'fs';
       break;
 
@@ -27069,10 +27071,11 @@ class LiveCellClass extends nohm.NohmModel {
     if (cell.cell_output.type) {
       this.setType(cell.cell_output.type);
     }
-    if (cell.data.length <= MAXIMUM_KEPT_HEX_SIZE) {
+    const dataLength = new ckbJsToolkit.Reader(cell.data).length();
+    if (dataLength <= MAXIMUM_KEPT_HEX_SIZE) {
       this.property(KEY_DATA, cell.data);
     }
-    this.property(KEY_DATA_LENGTH, cell.data.length);
+    this.property(KEY_DATA_LENGTH, dataLength);
   }
 
   outPoint() {
@@ -27104,8 +27107,9 @@ class LiveCellClass extends nohm.NohmModel {
     ValidateScript$1(lock);
     this.property(KEY_LOCK_CODE_HASH, lock.code_hash);
     this.property(KEY_LOCK_HASH_TYPE, lock.hash_type);
-    this.property(KEY_LOCK_ARGS_LENGTH, lock.args.length);
-    if (lock.args.length <= MAXIMUM_KEPT_HEX_SIZE) {
+    const length = new ckbJsToolkit.Reader(lock.args).length();
+    this.property(KEY_LOCK_ARGS_LENGTH, length);
+    if (length <= MAXIMUM_KEPT_HEX_SIZE) {
       this.property(KEY_LOCK_ARGS, lock.args);
     }
     this.property(KEY_LOCK_HASH, calculateScriptHash(lock));
@@ -27135,8 +27139,9 @@ class LiveCellClass extends nohm.NohmModel {
     ValidateScript$1(type);
     this.property(KEY_TYPE_CODE_HASH, type.code_hash);
     this.property(KEY_TYPE_HASH_TYPE, type.hash_type);
-    this.property(KEY_TYPE_ARGS_LENGTH, type.args.length);
-    if (type.args.length <= MAXIMUM_KEPT_HEX_SIZE) {
+    const length = new ckbJsToolkit.Reader(type.args).length();
+    this.property(KEY_LOCK_ARGS_LENGTH, length);
+    if (length <= MAXIMUM_KEPT_HEX_SIZE) {
       this.property(KEY_TYPE_ARGS, type.args);
     }
     this.property(KEY_TYPE_HASH, calculateScriptHash(type));
@@ -27265,12 +27270,13 @@ class Indexer {
   constructor(
     rpc,
     redisClient,
-    { registerNohm = true, purgeOldBlocks = OLD_CELLS_TO_PURGE } = {}
+    { registerNohm = true, purgeOldBlocks = OLD_CELLS_TO_PURGE, log = console.log } = {}
   ) {
     this.rpc = rpc;
     this.redisClient = redisClient;
     this.registerNohm = registerNohm;
     this.purgeOldBlocks = purgeOldBlocks;
+    this.log = log;
   }
 
   start() {
@@ -27412,7 +27418,7 @@ class Indexer {
       );
       await setAsync("LAST_PROCESSED_NUMBER", ckbJsToolkit.BigIntToHexString(blockNumber));
 
-      console.log("Indexed block: ", blockNumber.toString());
+      this.log("Indexed block: ", blockNumber.toString());
       lastProcessedBlockNumber = blockNumber;
 
       if (this.purgeOldBlocks) {
@@ -27445,19 +27451,122 @@ class Indexer {
   }
 }
 
+class Collector {
+  constructor(
+    rpc,
+    filters,
+    { skipCellWithContent = true, loadData = false } = {}
+  ) {
+    this.rpc = rpc;
+    this.filters = Object.assign({}, filters);
+    this.filters[KEY_SPENT] = false;
+    this.skipCellWithContent = skipCellWithContent;
+    this.loadData = loadData;
+  }
+
+  async *collect() {
+    const cells = await LiveCell.findAndLoad(this.filters);
+    for (const cell of cells) {
+      const lock = await cell.lock(this.rpc);
+      const type = await cell.type(this.rpc);
+      let data = null;
+      if (this.loadData || this.skipCellWithContent) {
+        data = await cell.data(this.rpc);
+      }
+      // TODO: investigate later why filter does not work.
+      if (this.skipCellWithContent) {
+        if (data && new ckbJsToolkit.Reader(data).length() > 0) {
+          continue;
+        }
+      }
+      yield {
+        cell_output: {
+          capacity: cell.property(KEY_CAPACITY),
+          lock,
+          type
+        },
+        out_point: cell.outPoint(),
+        block_hash: cell.property(KEY_BLOCK_HASH),
+        data
+      };
+    }
+  }
+}
+
+function deserializeLeaseCellInfo(buffer) {
+  buffer = new ckbJsToolkit.Reader(buffer).toArrayBuffer();
+  if (buffer.byteLength != 108) {
+    throw new Error("Invalid array buffer length!");
+  }
+  const view = new DataView(buffer);
+  return {
+    holder_lock: new ckbJsToolkit.Reader(buffer.slice(0, 32)).serializeJson(),
+    builder_pubkey_hash: new ckbJsToolkit.Reader(buffer.slice(32, 52)).serializeJson(),
+    coin_hash: new ckbJsToolkit.Reader(buffer.slice(52, 84)).serializeJson(),
+    lease_period: "0x" + view.getBigUint64(84, true).toString(16),
+    overdue_period: "0x" + view.getBigUint64(92, true).toString(16),
+    last_payment_time: "0x" + view.getBigUint64(100, true).toString(16)
+  };
+}
+
 const app = express();
 app.use(bodyParser_1.json());
 const port = 3000;
+const rpc = new ckbJsToolkit.RPC("http://127.0.0.1:8114/rpc");
+const client = redis.createClient();
+const codeHash = JSON.parse(fs.readFileSync("cell_deps.json")).binary_hash;
 
 app.get("/", async (req, res) => {
   res.send("Hello World!");
 });
 
-const rpc = new ckbJsToolkit.RPC("http://127.0.0.1:8114/rpc");
-const client = redis.createClient();
-client.on("connect", async () => {
+app.post("/holders/:holder_lock_hash/cells", async (req, res) => {
+  const { holder_lock_hash } = req.params;
+  const collector = new Collector(rpc, {
+    [KEY_LOCK_CODE_HASH]: codeHash
+  }, {
+    skipCellWithContent: false
+  });
+  const cells = [];
+  for await (const cell of collector.collect()) {
+    const leaseCellInfo = deserializeLeaseCellInfo(cell.cell_output.lock.args);
+    if (leaseCellInfo.holder_lock == holder_lock_hash) {
+      cells.push({
+        lease_info: leaseCellInfo,
+        out_point: cell.out_point,
+        data: cell.data
+      });
+    }
+  }
+  res.json(cells);
+});
+
+app.post("/builders/:builder_pubkey_hash/cells", async (req, res) => {
+  const { builder_pubkey_hash } = req.params;
+  const collector = new Collector(rpc, {
+    [KEY_LOCK_CODE_HASH]: codeHash
+  }, {
+    skipCellWithContent: false
+  });
+  const cells = [];
+  for await (const cell of collector.collect()) {
+    const leaseCellInfo = deserializeLeaseCellInfo(cell.cell_output.lock.args);
+    if (leaseCellInfo.builder_pubkey_hash == builder_pubkey_hash) {
+      cells.push({
+        lease_info: leaseCellInfo,
+        out_point: cell.out_point,
+        data: cell.data
+      });
+    }
+  }
+  res.json(cells);
+});
+
+client.on("connect", () => {
   nohm.Nohm.setClient(client);
-  const indexer = new Indexer(rpc, client);
+  const indexer = new Indexer(rpc, client, {
+    log: () => null
+  });
   indexer.start();
 
   app.listen(port, () => console.log(`Server started on port ${port}!`));

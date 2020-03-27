@@ -32,6 +32,7 @@ client.on("connect", async () => {
     },
     BigInt(argv[8]) * BigInt(100000000n)
   );
+  console.log("TX: ", inspect(tx, false, null, true));
   const result = await rpc.send_transaction(tx, "passthrough");
   console.log(`Created lease cell at ${result}@0!`);
   exit(0);
