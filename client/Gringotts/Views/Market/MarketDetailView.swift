@@ -11,7 +11,7 @@ struct MarketDetailView: View {
             ScrollView {
                 Image("MarketPlaceholder")
                     .resizable()
-                    .scaledToFill()
+                    //.scaledToFit()
             }.blur(radius: 5)
 
             Text("Not open yet due to regulation reason.")
@@ -19,7 +19,7 @@ struct MarketDetailView: View {
                 .foregroundColor(.white)
                 .padding(30)
                 .background(Rectangle().cornerRadius(10).foregroundColor(Color.gray.opacity(0.8)))
-        }
+        }.frame(minWidth: 500)
     }
 }
 
