@@ -8,8 +8,8 @@ import Foundation
 struct Transaction: Codable {
     let txHash: String?
     let version: String?
-    let inputs: [Input] // TODO: different Input struct from matches/list and matches/sign_match
-    let outputs: [Output]
+    let inputs: [CellInput]
+    let outputs: [CellOutput]
     let cellDeps: [CellDep]?
     let headerDeps: [String]?
     let outputsData: [String]?
@@ -20,22 +20,22 @@ struct Transaction: Codable {
         let since: String
     }
 
+    struct CellOutput: Codable {
+        let capacity: String
+        let lock: Script
+        let type: String?
+    }
+
     struct Input: Codable {
-        let cellOutput: CellOutput
-        let outPoint: OutPoint
-        let blockHash: String
-        let data: String
+        let cellOutput: CellOutput?
+        let outPoint: OutPoint?
+        let blockHash: String?
+        let data: String?
     }
 
     struct Output: Codable {
         let cellOutput: CellOutput
         let data: String?
-    }
-
-    struct CellOutput: Codable {
-        let capacity: String
-        let lock: Script
-        let type: String?
     }
 
     struct OutPoint: Codable {

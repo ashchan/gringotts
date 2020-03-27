@@ -9,7 +9,6 @@ extension JSONEncoder {
     static var apiEncoder: JSONEncoder = {
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
-        // todo: messagesToSign case
         return encoder
     }()
 }
