@@ -18,6 +18,7 @@ struct RootView: View {
                 LenderView()
             }
         }
+        .frame(minWidth: 640, minHeight: 320)
     }
 }
 
