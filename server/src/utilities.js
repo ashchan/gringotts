@@ -45,23 +45,28 @@ export function secpSign(privateKey, message) {
 }
 
 export function validateLeaseCellInfo(leaseCellInfo) {
-  ["coin_hash", "holder_lock"].forEach(key => {
+  ["holder_pubkey_hash", "builder_pubkey_hash"].forEach(key => {
     if (!leaseCellInfo[key]) {
       throw new Error(`${key} does not exist!`);
     }
     const reader = new Reader(leaseCellInfo[key]);
-    if (reader.length() !== 32) {
+    if (reader.length() !== 20) {
       throw new Error(`Invalid length for ${key}`);
     }
   });
-  if (!leaseCellInfo.builder_pubkey_hash) {
-    throw new Error("builder_pubkey_hash does not exist!");
+  if (!leaseCellInfo.coin_hash) {
+    throw new Error("coin_hash does not exist!");
   }
-  const reader = new Reader(leaseCellInfo.builder_pubkey_hash);
-  if (reader.length() !== 20) {
-    throw new Error("Invalid length for builder_pubkey_hash");
+  const reader = new Reader(leaseCellInfo.coin_hash);
+  if (reader.length() !== 32) {
+    throw new Error("Invalid length for coin_hash");
   }
-  ["lease_period", "overdue_period", "last_payment_time", "amount_per_period"].forEach(key => {
+  [
+    "lease_period",
+    "overdue_period",
+    "last_payment_time",
+    "amount_per_period"
+  ].forEach(key => {
     if (!leaseCellInfo[key]) {
       throw Error(`${key} does not exist!`);
     }
@@ -77,43 +82,43 @@ export function validateLeaseCellInfo(leaseCellInfo) {
 
 export function serializeLeaseCellInfo(leaseCellInfo) {
   validateLeaseCellInfo(leaseCellInfo);
-  const array = new Uint8Array(116);
+  const array = new Uint8Array(104);
   array.set(
-    new Uint8Array(new Reader(leaseCellInfo.holder_lock).toArrayBuffer()),
+    new Uint8Array(new Reader(leaseCellInfo.holder_pubkey_hash).toArrayBuffer()),
     0
   );
   array.set(
     new Uint8Array(
       new Reader(leaseCellInfo.builder_pubkey_hash).toArrayBuffer()
     ),
-    32
+    20
   );
   array.set(
     new Uint8Array(new Reader(leaseCellInfo.coin_hash).toArrayBuffer()),
-    52
+    40
   );
   const view = new DataView(array.buffer);
-  view.setBigUint64(84, BigInt(leaseCellInfo.lease_period), true);
-  view.setBigUint64(92, BigInt(leaseCellInfo.overdue_period), true);
-  view.setBigUint64(100, BigInt(leaseCellInfo.last_payment_time), true);
-  view.setBigUint64(108, BigInt(leaseCellInfo.amount_per_period), true);
+  view.setBigUint64(72, BigInt(leaseCellInfo.lease_period), true);
+  view.setBigUint64(80, BigInt(leaseCellInfo.overdue_period), true);
+  view.setBigUint64(88, BigInt(leaseCellInfo.last_payment_time), true);
+  view.setBigUint64(96, BigInt(leaseCellInfo.amount_per_period), true);
   return new Reader(view.buffer);
 }
 
 export function deserializeLeaseCellInfo(buffer) {
   buffer = new Reader(buffer).toArrayBuffer();
-  if (buffer.byteLength != 116) {
+  if (buffer.byteLength != 104) {
     throw new Error("Invalid array buffer length!");
   }
   const view = new DataView(buffer);
   return {
-    holder_lock: new Reader(buffer.slice(0, 32)).serializeJson(),
-    builder_pubkey_hash: new Reader(buffer.slice(32, 52)).serializeJson(),
-    coin_hash: new Reader(buffer.slice(52, 84)).serializeJson(),
-    lease_period: "0x" + view.getBigUint64(84, true).toString(16),
-    overdue_period: "0x" + view.getBigUint64(92, true).toString(16),
-    last_payment_time: "0x" + view.getBigUint64(100, true).toString(16),
-    amount_per_period: "0x" + view.getBigUint64(108, true).toString(16)
+    holder_pubkey_hash: new Reader(buffer.slice(0, 20)).serializeJson(),
+    builder_pubkey_hash: new Reader(buffer.slice(20, 40)).serializeJson(),
+    coin_hash: new Reader(buffer.slice(40, 72)).serializeJson(),
+    lease_period: "0x" + view.getBigUint64(72, true).toString(16),
+    overdue_period: "0x" + view.getBigUint64(80, true).toString(16),
+    last_payment_time: "0x" + view.getBigUint64(88, true).toString(16),
+    amount_per_period: "0x" + view.getBigUint64(96, true).toString(16)
   };
 }
 
@@ -127,7 +132,9 @@ export function intToLeBuffer(i) {
 export function assembleTransaction(txTemplate) {
   const tx = {
     version: "0x0",
-    cell_deps: txTemplate.cellDeps || JSON.parse(fs.readFileSync("./cell_deps.json")).cell_deps,
+    cell_deps:
+      txTemplate.cellDeps ||
+      JSON.parse(fs.readFileSync("./cell_deps.json")).cell_deps,
     header_deps: txTemplate.headers || [],
     inputs: txTemplate.inputs.map(i => {
       return {
@@ -224,6 +231,48 @@ export function fillSignatures(tx, messagesToSign, signatures) {
     ).serializeJson();
   }
   return tx;
+}
+
+export async function collectCellForFees(rpc, pubkeyHash, fee = 100000000n) {
+  const script = {
+    code_hash:
+      "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
+    hash_type: "type",
+    args: pubkeyHash
+  };
+  validators.ValidateScript(script);
+  const scriptHash = ckbHash(
+    blockchain.SerializeScript(normalizers.NormalizeScript(script))
+  );
+  const collector = new Collector(rpc, {
+    [nohm.KEY_LOCK_HASH]: scriptHash.serializeJson()
+  });
+  let currentCapacity = BigInt(0);
+  let currentCells = [];
+  for await (const cell of collector.collect()) {
+    currentCells.push(cell);
+    currentCapacity += BigInt(cell.cell_output.capacity);
+
+    if (currentCapacity >= fee + 6100000000n) {
+      break;
+    }
+  }
+  if (currentCapacity < fee + 6100000000n) {
+    throw new Error("Not enough capacity!");
+  }
+  return {
+    inputs: currentCells,
+    outputs: [
+      {
+        cell_output: {
+          capacity: "0x" + (currentCapacity - fee).toString(16),
+          lock: script,
+          type: null
+        },
+        data: null
+      }
+    ]
+  };
 }
 
 export async function createLeaseCell(

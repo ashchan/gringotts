@@ -8,7 +8,7 @@ import { argv, exit } from "process";
 
 if (argv.length != 10) {
   console.log(
-    "Usage: node create_lease_cell.js <private key> <coin hash> <holder lock> <builder pubkey hash> <lease period> <overdue period> <amount per period> <capacity to lease>"
+    "Usage: node create_lease_cell.js <private key> <coin hash> <holder pubkey hash> <builder pubkey hash> <lease period> <overdue period> <amount per period> <capacity to lease>"
   );
   exit(1);
 }
@@ -24,11 +24,11 @@ client.on("connect", async () => {
     argv[2],
     {
       coin_hash: argv[3],
-      holder_lock: argv[4],
+      holder_pubkey_hash: argv[4],
       builder_pubkey_hash: argv[5],
       lease_period: "0x" + BigInt(argv[6]).toString(16),
       overdue_period: "0x" + BigInt(argv[7]).toString(16),
-      amount_per_period: "0x" + BigInt(argv[8]).toString(16),
+      amount_per_period: "0x" + (BigInt(argv[8])  * BigInt(100000000n)).toString(16),
       last_payment_time: tip_number
     },
     BigInt(argv[9]) * BigInt(100000000n)
