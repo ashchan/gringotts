@@ -22,7 +22,11 @@
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
-                                        <menuItem title="Preferences…" keyEquivalent="," id="BOF-NM-1cW"/>
+                                        <menuItem title="Preferences…" keyEquivalent="," id="BOF-NM-1cW">
+                                            <connections>
+                                                <action selector="showSettings:" target="Ady-hI-5gd" id="2Hy-xn-HcA"/>
+                                            </connections>
+                                        </menuItem>
                                         <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
                                         <menuItem title="Services" id="NMo-om-nkz">
                                             <modifierMask key="keyEquivalentModifierMask"/>
@@ -714,10 +718,25 @@
                                         <action selector="selectTab:" target="Oky-zY-oP4" id="FbH-51-ApQ"/>
                                     </connections>
                                 </toolbarItem>
+                                <toolbarItem implicitItemIdentifier="18A797E4-8028-4C58-9318-AC4A7E00C8FB" label="Settings" paletteLabel="Settings" image="NSActionTemplate" sizingBehavior="auto" id="pPE-kA-iFy">
+                                    <nil key="toolTip"/>
+                                    <button key="view" verticalHuggingPriority="750" id="B3A-s0-Kd4">
+                                        <rect key="frame" x="11" y="14" width="30" height="25"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        <buttonCell key="cell" type="roundTextured" bezelStyle="texturedRounded" image="NSActionTemplate" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ClD-fa-mPL">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                    </button>
+                                    <connections>
+                                        <action selector="showSettings:" target="Oky-zY-oP4" id="BH7-e6-yyJ"/>
+                                    </connections>
+                                </toolbarItem>
                             </allowedToolbarItems>
                             <defaultToolbarItems>
                                 <toolbarItem reference="mZx-lf-zth"/>
                                 <toolbarItem reference="yo4-1S-ke8"/>
+                                <toolbarItem reference="pPE-kA-iFy"/>
                             </defaultToolbarItems>
                         </toolbar>
                         <connections>
@@ -741,4 +760,7 @@
             <point key="canvasLocation" x="75" y="770"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="NSActionTemplate" width="14" height="14"/>
+    </resources>
 </document>

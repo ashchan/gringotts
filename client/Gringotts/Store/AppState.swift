@@ -7,6 +7,7 @@ import Foundation
 
 struct AppState {
     var viewTab = ViewTab()
+    var settings = Settings()
 }
 
 extension AppState {
@@ -16,5 +17,12 @@ extension AppState {
         }
 
         var selected: Index = .lender
+    }
+}
+
+extension AppState {
+    struct Settings {
+        @UserDefault("Settings.APIServer", defaultValue: "http://18.162.232.6:3000")
+        var apiServer: String
     }
 }

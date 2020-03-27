@@ -23,6 +23,8 @@
 		1A1D24EE242DD190002B230C /* Decoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24ED242DD190002B230C /* Decoder.swift */; };
 		1A1D24F1242DD1D2002B230C /* Response.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24F0242DD1D2002B230C /* Response.swift */; };
 		1A1D24F3242DD250002B230C /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24F2242DD250002B230C /* Client.swift */; };
+		1A1D24F6242DD8DD002B230C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24F5242DD8DD002B230C /* SettingsView.swift */; };
+		1A1D24F9242DF12E002B230C /* UserDefault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24F8242DF12E002B230C /* UserDefault.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +47,8 @@
 		1A1D24ED242DD190002B230C /* Decoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Decoder.swift; sourceTree = "<group>"; };
 		1A1D24F0242DD1D2002B230C /* Response.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Response.swift; sourceTree = "<group>"; };
 		1A1D24F2242DD250002B230C /* Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
+		1A1D24F5242DD8DD002B230C /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		1A1D24F8242DF12E002B230C /* UserDefault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDefault.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +85,7 @@
 				1A1D24EF242DD1C2002B230C /* API */,
 				1A1D24EA242DCFE2002B230C /* Models */,
 				1A1D24D5242D95DC002B230C /* Views */,
+				1A1D24F7242DF072002B230C /* Utils */,
 				1A1D24C3242D939D002B230C /* AppDelegate.swift */,
 				1A1D24D3242D9577002B230C /* Main.swift */,
 				1A1D24C7242D939D002B230C /* Assets.xcassets */,
@@ -97,6 +102,7 @@
 				1A1D24D8242D9B25002B230C /* Lender */,
 				1A1D24D9242D9B38002B230C /* Borrower */,
 				1A1D24E3242DAF10002B230C /* Market */,
+				1A1D24F4242DD8CE002B230C /* Settings */,
 				1A1D24D6242D95EB002B230C /* RootView.swift */,
 			);
 			path = Views;
@@ -153,6 +159,22 @@
 				1A1D24F2242DD250002B230C /* Client.swift */,
 			);
 			path = API;
+			sourceTree = "<group>";
+		};
+		1A1D24F4242DD8CE002B230C /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				1A1D24F5242DD8DD002B230C /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		1A1D24F7242DF072002B230C /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				1A1D24F8242DF12E002B230C /* UserDefault.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -225,6 +247,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A1D24F9242DF12E002B230C /* UserDefault.swift in Sources */,
+				1A1D24F6242DD8DD002B230C /* SettingsView.swift in Sources */,
 				1A1D24DD242D9B71002B230C /* BorrowerView.swift in Sources */,
 				1A1D24E7242DB66F002B230C /* MarketDetailView.swift in Sources */,
 				1A1D24DB242D9B62002B230C /* LenderView.swift in Sources */,
