@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -32,6 +32,8 @@
 		1A6BEEFB242EE46A00C3F2CA /* Mist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEEFA242EE46A00C3F2CA /* Mist.swift */; };
 		1A6BEEFD242EF36800C3F2CA /* Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEEFC242EF36800C3F2CA /* Hex.swift */; };
 		1A6BEF00242F091100C3F2CA /* CellsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEEFF242F091100C3F2CA /* CellsView.swift */; };
+		1A6BEF03242F0F8600C3F2CA /* CKB in Frameworks */ = {isa = PBXBuildFile; productRef = 1A6BEF02242F0F8600C3F2CA /* CKB */; };
+		1A6BEF05242F12CB00C3F2CA /* KeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEF04242F12CB00C3F2CA /* KeyManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,6 +65,7 @@
 		1A6BEEFA242EE46A00C3F2CA /* Mist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mist.swift; sourceTree = "<group>"; };
 		1A6BEEFC242EF36800C3F2CA /* Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hex.swift; sourceTree = "<group>"; };
 		1A6BEEFF242F091100C3F2CA /* CellsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellsView.swift; sourceTree = "<group>"; };
+		1A6BEF04242F12CB00C3F2CA /* KeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +73,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A6BEF03242F0F8600C3F2CA /* CKB in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -176,6 +180,7 @@
 			children = (
 				1A1D24F8242DF12E002B230C /* UserDefault.swift */,
 				1A6BEEFC242EF36800C3F2CA /* Hex.swift */,
+				1A6BEF04242F12CB00C3F2CA /* KeyManager.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -183,7 +188,6 @@
 		1A6BEEF3242EDAD400C3F2CA /* Common */ = {
 			isa = PBXGroup;
 			children = (
-				1A6BEEF4242EDAE400C3F2CA /* CellRow.swift */,
 				1A6BEEF6242EDBCA00C3F2CA /* EmptyAccountView.swift */,
 				1A6BEEF8242EDE1700C3F2CA /* Logo.swift */,
 			);
@@ -193,6 +197,7 @@
 		1A6BEEFE242F08F200C3F2CA /* Cells */ = {
 			isa = PBXGroup;
 			children = (
+				1A6BEEF4242EDAE400C3F2CA /* CellRow.swift */,
 				1A6BEEFF242F091100C3F2CA /* CellsView.swift */,
 			);
 			path = Cells;
@@ -214,6 +219,9 @@
 			dependencies = (
 			);
 			name = Gringotts;
+			packageProductDependencies = (
+				1A6BEF02242F0F8600C3F2CA /* CKB */,
+			);
 			productName = Gringotts;
 			productReference = 1A1D24C0242D939D002B230C /* Gringotts.app */;
 			productType = "com.apple.product-type.application";
@@ -242,6 +250,9 @@
 				Base,
 			);
 			mainGroup = 1A1D24B7242D939D002B230C;
+			packageReferences = (
+				1A6BEF01242F0F8600C3F2CA /* XCRemoteSwiftPackageReference "ckb-sdk-swift" */,
+			);
 			productRefGroup = 1A1D24C1242D939D002B230C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -291,6 +302,7 @@
 				1A1D24D4242D9577002B230C /* Main.swift in Sources */,
 				1A1D24EE242DD190002B230C /* Decoder.swift in Sources */,
 				1A1D24C4242D939D002B230C /* AppDelegate.swift in Sources */,
+				1A6BEF05242F12CB00C3F2CA /* KeyManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -483,6 +495,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		1A6BEF01242F0F8600C3F2CA /* XCRemoteSwiftPackageReference "ckb-sdk-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ashchan/ckb-sdk-swift";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		1A6BEF02242F0F8600C3F2CA /* CKB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1A6BEF01242F0F8600C3F2CA /* XCRemoteSwiftPackageReference "ckb-sdk-swift" */;
+			productName = CKB;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1A1D24B8242D939D002B230C /* Project object */;
 }

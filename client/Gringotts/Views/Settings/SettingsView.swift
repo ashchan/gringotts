@@ -13,6 +13,7 @@ struct SettingsView: View {
     @State private var holderAddress = ""
     @State private var builderAddress = ""
     @State private var errorMessage = ""
+    @State private var superMode = false
 
     var body: some View {
         Form {
@@ -31,6 +32,7 @@ struct SettingsView: View {
                         .font(.caption)
                         .frame(width: 100, alignment: .trailing)
                     TextField("Holder Address", text: $holderAddress)
+                        .disabled(true)
                 }
             }
 
@@ -40,6 +42,7 @@ struct SettingsView: View {
                         .font(.caption)
                         .frame(width: 100, alignment: .trailing)
                     TextField("Builder Address", text: $builderAddress)
+                        .disabled(true)
                 }
             }
 
@@ -53,13 +56,49 @@ struct SettingsView: View {
                     }
                 }
 
-                HStack {
-                    Spacer()
+                if self.superMode {
+                    HStack {
+                        Spacer()
 
+                        Button(action: {
+                            self.useDemo1()
+                        }) {
+                            Text("Holder 1").frame(width: 60)
+                        }
+
+                        Button(action: {
+                            self.useDemo2()
+                        }) {
+                            Text("Holder 2").frame(width: 60)
+                        }
+
+                        Button(action: {
+                            self.useDemo3()
+                        }) {
+                            Text("Builder").frame(width: 60)
+                        }
+
+                        Button(action: {
+                            self.reset()
+                        }) {
+                            Text("Reset").frame(width: 50)
+                        }
+                    }
+                }
+
+                HStack {
                     Button(action: {
                         self.presentationMode.wrappedValue.dismiss()
                     }) {
                         Text("Cancel").frame(width: 50)
+                    }
+
+                    Spacer()
+
+                    Button(action: {
+                        self.superMode.toggle()
+                    }) {
+                        Text("Too young to die").frame(width: 150)
                     }
 
                     Button(action: {
@@ -84,6 +123,26 @@ struct SettingsView: View {
 }
 
 private extension SettingsView {
+    func useDemo1() {
+        holderAddress = KeyManager.address(for: store.state.settings.holder1PrivateKey)
+        builderAddress = ""
+    }
+
+    func useDemo2() {
+        holderAddress = KeyManager.address(for: store.state.settings.holder2PrivateKey)
+        builderAddress = ""
+    }
+
+    func useDemo3() {
+        holderAddress = ""
+        builderAddress = KeyManager.address(for: store.state.settings.builderPrivateKey)
+    }
+
+    func reset() {
+        holderAddress = ""
+        builderAddress = ""
+    }
+
     func submit() {
         store.state.settings.apiServer = apiServer
         store.state.settings.holderAddress = holderAddress

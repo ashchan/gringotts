@@ -10,5 +10,8 @@ Gringotts client GUI powered by SwiftUI.
 * Xcode 11.4
 * Swift 5.2
 * macOS 10.15
-* SPM (tbd)
-* libsodium (tbd)
+* libsodium: `brew install libsodium`
+
+## Warning
+
+This is project is for demo purpose. A few private keys are hardcoded. That's not how we should store/use them in real application.
