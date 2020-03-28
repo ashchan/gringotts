@@ -1,3 +1,9 @@
 [submodule "server/deps/ckb-js-toolkit-contrib"]
 	path = server/deps/ckb-js-toolkit-contrib
 	url = https://github.com/xxuejie/ckb-js-toolkit-contrib
+[submodule "server/deps/ckb-c-stdlib"]
+	path = server/deps/ckb-c-stdlib
+	url = https://github.com/nervosnetwork/ckb-c-stdlib
+[submodule "server/deps/secp256k1"]
+	path = server/deps/secp256k1
+	url = https://github.com/nervosnetwork/secp256k1
