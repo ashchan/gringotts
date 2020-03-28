@@ -9,15 +9,11 @@ struct CellsView: View {
     @EnvironmentObject var store: Store
     @State private var selectedCell: Cell?
 
-    var viewType: ViewType {
-        store.state.viewTab.selected == .lender ? .holder : .builder
-    }
+    private var viewType: ViewType { store.state.viewTab.selected == .lender ? .holder : .builder }
+    private var isHolder: Bool { viewType == .holder }
+    private var address: String { isHolder ? store.state.settings.holderAddress : store.state.settings.builderAddress }
 
-    var address: String {
-        return viewType == .holder ? store.state.settings.holderAddress : store.state.settings.builderAddress
-    }
-
-    var cells: [Cell] = []
+    var cells: [Cell] { isHolder ? store.state.holderCells : store.state.builderCells }
 
     var body: some View {
         ZStack {
@@ -36,9 +32,34 @@ struct CellsView: View {
                 }
             } else {
                 List(selection: $selectedCell) {
-                    ForEach(Cell.samples) { cell in
-                        CellRow(cell: cell, tipNumber: self.store.state.tipNumber).tag(cell)
+                    HStack {
+                        VStack(alignment: .leading) {
+                            Text("\(self.store.state.balance.numberFromHex / 100_000_000)")
+                                .font(.headline)
+                            +
+                            Text(" CKB")
+
+                            Text(self.address)
+                                .font(.system(.caption, design: .monospaced))
+                        }
+
+                        Spacer()
+
+                        Button(action: {
+                            self.refresh()
+                        }) {
+                            Text("Refresh")
+                        }
                     }
+                    .padding()
+
+                    ForEach(cells) { cell in
+                        CellRow(cell: cell, tipNumber: self.store.state.tipNumber, isHolder: self.isHolder)
+                            .tag(cell)
+                    }
+                }
+                .onAppear {
+                    self.refreshIfNecessary()
                 }
             }
         }
@@ -50,10 +71,25 @@ extension CellsView {
         case holder
         case builder
     }
+
+    func refresh() {
+        if isHolder {
+            store.loadHolderCells()
+        } else {
+            store.loadBuilderCells()
+        }
+        store.loadBalance(address: address)
+    }
+
+    func refreshIfNecessary() {
+        if cells.isEmpty || store.state.balance == "0" {
+            refresh()
+        }
+    }
 }
 
 struct CellsView_Previews: PreviewProvider {
     static var previews: some View {
-        CellsView(cells: Cell.samples).environmentObject(Store())
+        CellsView().environmentObject(Store())
     }
 }

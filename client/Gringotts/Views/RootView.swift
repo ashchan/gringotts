@@ -20,6 +20,7 @@ struct RootView: View {
                     CellsView()
                 }
             }
+
             Text("#\(store.state.tipNumber)")
                 .font(.system(size: 10, weight: .thin, design: .monospaced))
                 .frame(width: 100, height: 20)

@@ -7,7 +7,7 @@ import Foundation
 
 extension String {
     var numberFromHex: UInt64 {
-        let text = String(dropFirst(2))
+        let text = starts(with: "0x") ? String(dropFirst(2)) : self
         return UInt64(text, radix: 16) ?? 0
     }
 }

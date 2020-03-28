@@ -703,13 +703,13 @@
                                 <toolbarItem implicitItemIdentifier="AAD80565-9D7C-4EBC-9B7E-C30C7406B981" label="" paletteLabel="Select Feature Panel" sizingBehavior="auto" selectable="YES" id="mZx-lf-zth">
                                     <nil key="toolTip"/>
                                     <segmentedControl key="view" verticalHuggingPriority="750" id="gzo-v3-5GB">
-                                        <rect key="frame" x="0.0" y="14" width="368" height="23"/>
+                                        <rect key="frame" x="0.0" y="14" width="369" height="24"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <segmentedCell key="cell" borderStyle="border" alignment="left" style="texturedSquare" trackingMode="selectOne" id="Ohw-8R-oKL">
                                             <font key="font" metaFont="system"/>
                                             <segments>
-                                                <segment label="Holder" width="120" selected="YES"/>
-                                                <segment label="Builder" width="120" tag="1"/>
+                                                <segment label="HODL" width="120" selected="YES"/>
+                                                <segment label="BUIDL" width="120" tag="1"/>
                                                 <segment label="Market" width="120"/>
                                             </segments>
                                         </segmentedCell>

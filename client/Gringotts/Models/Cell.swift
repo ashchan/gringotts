@@ -12,6 +12,14 @@ struct Cell: Hashable, Codable, Identifiable {
 
     var id: String { outPoint.txHash + outPoint.index }
 
+    var coinType: CoinType {
+        leaseInfo.coinHash == "0x0000000000000000000000000000000000000000000000000000000000000000" ? .ckb : .udt
+    }
+
+    var amountPerPeriod: String {
+        leaseInfo.amountPerPeriod.numberFromHex.description + (coinType == .ckb ? " shannon" : " udt")
+    }
+
     func status(tipNumber: UInt64) -> Status {
         if lastPaymentTime + leasePeriod >= tipNumber {
             return .normal
@@ -23,6 +31,10 @@ struct Cell: Hashable, Codable, Identifiable {
 
         // if lastPaymentTime + leasePeriod < tipNumber
         return .overdue
+    }
+
+    func canClaim(tipNumber: UInt64) -> Bool {
+        status(tipNumber: tipNumber) == .overdue
     }
 
     var lastPaymentTime: UInt64 { leaseInfo.lastPaymentTime.numberFromHex }
@@ -37,7 +49,20 @@ extension Cell {
         case overdue
 
         var description: String {
-            return rawValue.capitalized
+            rawValue.capitalized
+        }
+    }
+
+    enum CoinType: String {
+        case ckb
+        case udt
+
+        var description: String {
+            rawValue.uppercased()
+        }
+
+        var icon: String {
+            "CoinType\(rawValue.uppercased())"
         }
     }
 }

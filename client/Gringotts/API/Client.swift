@@ -21,6 +21,11 @@ struct Client {
         URLSession.shared
             .dataTaskPublisher(for: makeRequest(endpoint: endpoint))
             .map(\.data)
+            .map { d in
+                // For debug http response
+                // print(String(data: d, encoding: .utf8))
+                return d
+            }
             .replaceError(with: Data())
             .eraseToAnyPublisher()
     }
@@ -72,7 +77,7 @@ extension Client {
             case .pay(let cell, let pubkeyHash):
                 return "builders/\(cellPath(pubkeyHash, cell))/pay"
             case .claim(let cell, let pubkeyHash):
-                return "builders/\(cellPath(pubkeyHash, cell))/claim"
+                return "holders/\(cellPath(pubkeyHash, cell))/claim"
             case .sendSignedTransaction:
                 return "send_signed_transaction"
             case .createMatch:

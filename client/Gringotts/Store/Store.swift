@@ -34,23 +34,86 @@ extension Store {
             self.tipNumberCancellable?.cancel()
             self.tipNumberCancellable = self.client!.publisher(for: .tipHeader)
                 .decode(type: TipNumber.self, decoder: JSONDecoder.apiDecoder)
-                .print()
                 .map { $0.tipNumber.numberFromHex }
                 .replaceError(with: 0)
                 .receive(on: DispatchQueue.main)
-                .assign(to: \.state.tipNumber, on: self)
+                .sink { tipNumber in
+                    // Do not use assign here to avoid setting tip number to 0 when api call fails
+                    if tipNumber > 0 {
+                        self.state.tipNumber = tipNumber
+                    }
+                }
         }
         tipNumberTimer?.fire()
     }
 
-    func testApiServer() {
-        client?.publisher(for: .holderCells(pubkeyHash: "0xc8328aabcd9b9e8e64fbc566c4385c3bdeb219d7"))
+    func loadHolderCells() {
+        client?.publisher(for: .holderCells(pubkeyHash: KeyManager.pubkeyPash(for: state.settings.holderAddress)))
             .decode(type: [Cell].self, decoder: JSONDecoder.apiDecoder)
-            .print()
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)
-            .sink() {
-                print($0)
+            .assign(to: \.state.holderCells, on: self)
+            .store(in: &cancellables)
+    }
+
+    func loadBuilderCells() {
+        client?.publisher(for: .builderCells(pubkeyHash: KeyManager.pubkeyPash(for: state.settings.builderAddress)))
+            .decode(type: [Cell].self, decoder: JSONDecoder.apiDecoder)
+            .replaceError(with: [])
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.state.builderCells, on: self)
+            .store(in: &cancellables)
+    }
+
+    func loadBalance(address: String) {
+        client?.publisher(for: .balance(pubkeyHash: KeyManager.pubkeyPash(for: address)))
+            .decode(type: Balance.self, decoder: JSONDecoder.apiDecoder)
+            .map(\.balance)
+            .replaceError(with: "0")
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.state.balance, on: self)
+            .store(in: &cancellables)
+    }
+
+    func changeData(cell: Cell, data: String) {
+        client?.publisher(for: .changeData(cell: cell, pubkeyHash: KeyManager.pubkeyPash(for: state.settings.builderAddress), data: data))
+            .decode(type: SigningMessage.self, decoder: JSONDecoder.apiDecoder)
+            .sink(receiveCompletion: { completion in
+            }) { signingMessage in
+                self.sendSignedTransaction(signingMessage: signingMessage, privateKey: self.state.settings.builderPrivateKey)
+            }
+            .store(in: &cancellables)
+    }
+
+    func pay(cell: Cell) {
+        client?.publisher(for: .pay(cell: cell, pubkeyHash: KeyManager.pubkeyPash(for: state.settings.builderAddress)))
+            .decode(type: SigningMessage.self, decoder: JSONDecoder.apiDecoder)
+            .sink(receiveCompletion: { completion in
+            }) { signingMessage in
+                self.sendSignedTransaction(signingMessage: signingMessage, privateKey: self.state.settings.builderPrivateKey)
+            }
+            .store(in: &cancellables)
+    }
+
+    func claim(cell: Cell) {
+        client?.publisher(for: .claim(cell: cell, pubkeyHash: KeyManager.pubkeyPash(for: state.settings.holderAddress)))
+            .decode(type: SigningMessage.self, decoder: JSONDecoder.apiDecoder)
+            .sink(receiveCompletion: { completion in
+            }) { signingMessage in
+                self.sendSignedTransaction(signingMessage: signingMessage, privateKey: self.state.settings.holderPrivatekey)
+            }
+            .store(in: &cancellables)
+    }
+
+    func sendSignedTransaction(signingMessage: SigningMessage, privateKey: String) {
+        let signedMessage = signingMessage.sign(with: privateKey)
+        client?.publisher(for: .sendSignedTransaction(message: signedMessage))
+            .decode(type: SignMessageResult.self, decoder: JSONDecoder.apiDecoder)
+            .sink(receiveCompletion: { completion in
+                print(completion)
+            }) { result in
+                // TODO: notify user
+                print(result)
             }
             .store(in: &cancellables)
     }
