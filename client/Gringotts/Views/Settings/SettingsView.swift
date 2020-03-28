@@ -10,6 +10,7 @@ struct SettingsView: View {
     @Environment(\.presentationMode) var presentationMode
 
     @State private var apiServer = ""
+    @State private var holderPrivateKey = ""
     @State private var holderAddress = ""
     @State private var builderAddress = ""
     @State private var errorMessage = ""
@@ -124,16 +125,19 @@ struct SettingsView: View {
 
 private extension SettingsView {
     func useDemo1() {
-        holderAddress = KeyManager.address(for: store.state.settings.holder1PrivateKey)
+        holderPrivateKey = store.state.settings.holder1PrivateKey
+        holderAddress = KeyManager.address(for: holderPrivateKey)
         builderAddress = ""
     }
 
     func useDemo2() {
-        holderAddress = KeyManager.address(for: store.state.settings.holder2PrivateKey)
+        holderPrivateKey = store.state.settings.holder2PrivateKey
+        holderAddress = KeyManager.address(for: holderPrivateKey)
         builderAddress = ""
     }
 
     func useDemo3() {
+        holderPrivateKey = ""
         holderAddress = ""
         builderAddress = KeyManager.address(for: store.state.settings.builderPrivateKey)
     }
@@ -145,6 +149,7 @@ private extension SettingsView {
 
     func submit() {
         store.state.settings.apiServer = apiServer
+        store.state.settings.holderPrivatekey = holderPrivateKey
         store.state.settings.holderAddress = holderAddress
         store.state.settings.builderAddress = builderAddress
         store.updateClient()
