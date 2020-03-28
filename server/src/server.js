@@ -267,7 +267,7 @@ app.post("/matches/create", async (req, res) => {
 });
 
 app.post("/matches/list", async (req, res) => {
-  const matches = await hgetallAsync("MATCH_LIST");
+  const matches = await hgetallAsync("MATCH_LIST") || {};
   res.json(
     Object.keys(matches).map(id => {
       const data = JSON.parse(matches[id]);
