@@ -1,5 +1,4 @@
 #include "ckb_syscalls.h"
-#include "common.h"
 #include "blockchain.h"
 #include "ckb_dlfcn.h"
 
@@ -12,6 +11,12 @@ static uint8_t SECP_BINARY_HASH[32] = {
   0x5e, 0x25, 0xe7, 0xc9, 0xa7, 0x05, 0x65, 0x56,
   0x2c, 0xa7, 0xe2, 0x4d, 0xc3, 0x22, 0xfd, 0x85
 };
+
+#define ERROR_ARGUMENTS_LEN -1
+#define ERROR_ENCODING -2
+#define ERROR_SYSCALL -3
+#define ERROR_SCRIPT_TOO_LONG -21
+#define ERROR_PUBKEY_BLAKE160_HASH -31
 
 #define BLAKE2B_BLOCK_SIZE 32
 #define BLAKE160_SIZE 20
