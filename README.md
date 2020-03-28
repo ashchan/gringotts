@@ -4,6 +4,7 @@ UDT Hackathon Team Goblins Codebase
 
 * [Server](server/)
 * [Client (macOS)](client/)
+* [Document](https://docs.google.com/document/d/1SEV3Ch63QBlb6ij3T_F93DxoOPuBDfk-xgGaeXHyyxA/edit?usp=sharing)
 
 # Smart Contracts
 
