@@ -13,7 +13,7 @@ struct KeyManager {
         Utils.privateToAddress(privateKey, network: .mainnet)
     }
 
-    static func pubkeyPash(for address: String) -> String {
+    static func pubkeyHash(for address: String) -> String {
         Utils.prefixHex(AddressGenerator.publicKeyHash(for: address) ?? "0x")
     }
 

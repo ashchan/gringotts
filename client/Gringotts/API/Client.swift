@@ -62,6 +62,7 @@ extension Client {
         case listMatches
         case match(id: String, pubkeyHash: String)
         case signMatch(id: String, signatures: [String])
+        case signConfirm(id: String, signatures: [String])
 
         case balance(pubkeyHash: String)
         case tipHeader
@@ -80,6 +81,7 @@ extension Client {
                 return "holders/\(cellPath(pubkeyHash, cell))/claim"
             case .sendSignedTransaction:
                 return "send_signed_transaction"
+
             case .createMatch:
                 return "matches/create"
             case .listMatches:
@@ -88,6 +90,9 @@ extension Client {
                 return "matches/\(id)/match"
             case .signMatch(let id, _):
                 return "matches/\(id)/sign_match"
+            case .signConfirm(let id, _):
+                return "matches/\(id)/sign_confirm"
+
             case .balance(let pubkeyHash):
                 return "balances/\(pubkeyHash)"
             case .tipHeader:
@@ -108,7 +113,9 @@ extension Client {
             case .match(_, let pubkeyHash):
                 toEncode = ["holder_pubkey_hash": pubkeyHash]
             case .signMatch(_, let signatures):
-                toEncode = ["sinagures": signatures]
+                toEncode = ["signatures": signatures]
+            case .signConfirm(_, let signatures):
+                toEncode = ["signatures": signatures]
             default:
                 toEncode = nil
             }

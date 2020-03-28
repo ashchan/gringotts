@@ -19,7 +19,7 @@ final class Store: ObservableObject {
     }
 }
 
-// Some actions
+// MARK: - Misc actions
 extension Store {
     func showSettingsView() {
         NotificationCenter.default.post(name: .showSettingsView, object: nil)
@@ -30,7 +30,7 @@ extension Store {
     }
 
     func updateTipNumberPublisher() {
-        tipNumberTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
+        tipNumberTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
             self.tipNumberCancellable?.cancel()
             self.tipNumberCancellable = self.client!.publisher(for: .tipHeader)
                 .decode(type: TipNumber.self, decoder: JSONDecoder.apiDecoder)
@@ -46,9 +46,12 @@ extension Store {
         }
         tipNumberTimer?.fire()
     }
+}
 
+// MARK: - Cells
+extension Store {
     func loadHolderCells() {
-        client?.publisher(for: .holderCells(pubkeyHash: KeyManager.pubkeyPash(for: state.settings.holderAddress)))
+        client?.publisher(for: .holderCells(pubkeyHash: KeyManager.pubkeyHash(for: state.settings.holderAddress)))
             .decode(type: [Cell].self, decoder: JSONDecoder.apiDecoder)
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)
@@ -57,7 +60,7 @@ extension Store {
     }
 
     func loadBuilderCells() {
-        client?.publisher(for: .builderCells(pubkeyHash: KeyManager.pubkeyPash(for: state.settings.builderAddress)))
+        client?.publisher(for: .builderCells(pubkeyHash: KeyManager.pubkeyHash(for: state.settings.builderAddress)))
             .decode(type: [Cell].self, decoder: JSONDecoder.apiDecoder)
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)
@@ -66,7 +69,7 @@ extension Store {
     }
 
     func loadBalance(address: String) {
-        client?.publisher(for: .balance(pubkeyHash: KeyManager.pubkeyPash(for: address)))
+        client?.publisher(for: .balance(pubkeyHash: KeyManager.pubkeyHash(for: address)))
             .decode(type: Balance.self, decoder: JSONDecoder.apiDecoder)
             .map(\.balance)
             .replaceError(with: "0")
@@ -76,7 +79,7 @@ extension Store {
     }
 
     func changeData(cell: Cell, data: String) {
-        client?.publisher(for: .changeData(cell: cell, pubkeyHash: KeyManager.pubkeyPash(for: state.settings.builderAddress), data: data))
+        client?.publisher(for: .changeData(cell: cell, pubkeyHash: KeyManager.pubkeyHash(for: state.settings.builderAddress), data: data))
             .decode(type: SigningMessage.self, decoder: JSONDecoder.apiDecoder)
             .sink(receiveCompletion: { completion in
             }) { signingMessage in
@@ -86,7 +89,7 @@ extension Store {
     }
 
     func pay(cell: Cell) {
-        client?.publisher(for: .pay(cell: cell, pubkeyHash: KeyManager.pubkeyPash(for: state.settings.builderAddress)))
+        client?.publisher(for: .pay(cell: cell, pubkeyHash: KeyManager.pubkeyHash(for: state.settings.builderAddress)))
             .decode(type: SigningMessage.self, decoder: JSONDecoder.apiDecoder)
             .sink(receiveCompletion: { completion in
             }) { signingMessage in
@@ -96,7 +99,7 @@ extension Store {
     }
 
     func claim(cell: Cell) {
-        client?.publisher(for: .claim(cell: cell, pubkeyHash: KeyManager.pubkeyPash(for: state.settings.holderAddress)))
+        client?.publisher(for: .claim(cell: cell, pubkeyHash: KeyManager.pubkeyHash(for: state.settings.holderAddress)))
             .decode(type: SigningMessage.self, decoder: JSONDecoder.apiDecoder)
             .sink(receiveCompletion: { completion in
             }) { signingMessage in
@@ -114,6 +117,70 @@ extension Store {
             }) { result in
                 // TODO: notify user
                 print(result)
+            }
+            .store(in: &cancellables)
+    }
+}
+
+// MARK: - Market
+extension Store {
+    func loadMatches() {
+        client?.publisher(for: .listMatches)
+            .decode(type: [Match].self, decoder: JSONDecoder.apiDecoder)
+            .replaceError(with: [])
+            .receive(on: DispatchQueue.main)
+            .assign(to: \.state.matches, on: self)
+            .store(in: &cancellables)
+    }
+
+    func createMatch(match: MatchData) {
+        client?.publisher(for: .createMatch(data: match))
+            .decode(type: Match.self, decoder: JSONDecoder.apiDecoder)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { completion in
+            }) { match in
+                self.state.matches.insert(match, at: 0)
+            }
+            .store(in: &cancellables)
+    }
+
+    func takeMatch(id: String) {
+        client?.publisher(for: .match(id: id, pubkeyHash: KeyManager.pubkeyHash(for: state.settings.holderAddress)))
+            .decode(type: Match.self, decoder: JSONDecoder.apiDecoder)
+            .receive(on: DispatchQueue.main)
+            .sink(receiveCompletion: { completion in
+            }) { match in
+                self.signMatch(match: match)
+            }
+            .store(in: &cancellables)
+    }
+
+    // Holder sign
+    func signMatch(match: Match) {
+        let signed = match.sign(with: state.settings.holderPrivatekey)
+        client?.publisher(for: .signMatch(id: match.id, signatures: signed))
+            .decode(type: Match.self, decoder: JSONDecoder.apiDecoder)
+            .sink(receiveCompletion: { completion in
+                print(completion)
+            }) { result in
+                // TODO: notify user
+                print(result)
+                self.loadMatches()
+            }
+            .store(in: &cancellables)
+    }
+
+    // Builder sign
+    func signConfirm(match: Match) {
+        let signed = match.sign(with: state.settings.builderPrivateKey)
+        client?.publisher(for: .signConfirm(id: match.id, signatures: signed))
+            .decode(type: SignMessageResult.self, decoder: JSONDecoder.apiDecoder)
+            .sink(receiveCompletion: { completion in
+                print(completion)
+            }) { result in
+                // TODO: notify user
+                print(result)
+                self.loadMatches()
             }
             .store(in: &cancellables)
     }

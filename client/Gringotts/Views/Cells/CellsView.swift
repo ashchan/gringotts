@@ -32,7 +32,7 @@ struct CellsView: View {
                 }
             } else {
                 List(selection: $selectedCell) {
-                    HStack {
+                    HStack(alignment: .top) {
                         VStack(alignment: .leading) {
                             Text("\(self.store.state.balance.numberFromHex / 100_000_000)")
                                 .font(.headline)
@@ -54,7 +54,7 @@ struct CellsView: View {
                     .padding()
 
                     ForEach(cells) { cell in
-                        CellRow(cell: cell, tipNumber: self.store.state.tipNumber, isHolder: self.isHolder)
+                        CellRow(cell: cell, isHolder: self.isHolder)
                             .tag(cell)
                     }
                 }

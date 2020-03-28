@@ -15,8 +15,6 @@
 		1A1D24E0242DA961002B230C /* Store.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24DF242DA961002B230C /* Store.swift */; };
 		1A1D24E2242DAAEC002B230C /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24E1242DAAEC002B230C /* AppState.swift */; };
 		1A1D24E5242DAF9B002B230C /* MarketView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24E4242DAF9B002B230C /* MarketView.swift */; };
-		1A1D24E7242DB66F002B230C /* MarketDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24E6242DB66F002B230C /* MarketDetailView.swift */; };
-		1A1D24E9242DB68B002B230C /* MarketMasterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24E8242DB68B002B230C /* MarketMasterView.swift */; };
 		1A1D24EC242DD014002B230C /* Cell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24EB242DD014002B230C /* Cell.swift */; };
 		1A1D24EE242DD190002B230C /* Decoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24ED242DD190002B230C /* Decoder.swift */; };
 		1A1D24F3242DD250002B230C /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D24F2242DD250002B230C /* Client.swift */; };
@@ -34,6 +32,8 @@
 		1A6BEF00242F091100C3F2CA /* CellsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEEFF242F091100C3F2CA /* CellsView.swift */; };
 		1A6BEF03242F0F8600C3F2CA /* CKB in Frameworks */ = {isa = PBXBuildFile; productRef = 1A6BEF02242F0F8600C3F2CA /* CKB */; };
 		1A6BEF05242F12CB00C3F2CA /* KeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEF04242F12CB00C3F2CA /* KeyManager.swift */; };
+		1A6BEF09242F783000C3F2CA /* MatchForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEF08242F783000C3F2CA /* MatchForm.swift */; };
+		1A6BEF0B242F7FF100C3F2CA /* MatchRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEF0A242F7FF100C3F2CA /* MatchRow.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,8 +48,6 @@
 		1A1D24DF242DA961002B230C /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		1A1D24E1242DAAEC002B230C /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		1A1D24E4242DAF9B002B230C /* MarketView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketView.swift; sourceTree = "<group>"; };
-		1A1D24E6242DB66F002B230C /* MarketDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketDetailView.swift; sourceTree = "<group>"; };
-		1A1D24E8242DB68B002B230C /* MarketMasterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketMasterView.swift; sourceTree = "<group>"; };
 		1A1D24EB242DD014002B230C /* Cell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cell.swift; sourceTree = "<group>"; };
 		1A1D24ED242DD190002B230C /* Decoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Decoder.swift; sourceTree = "<group>"; };
 		1A1D24F2242DD250002B230C /* Client.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Client.swift; sourceTree = "<group>"; };
@@ -66,6 +64,8 @@
 		1A6BEEFC242EF36800C3F2CA /* Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hex.swift; sourceTree = "<group>"; };
 		1A6BEEFF242F091100C3F2CA /* CellsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellsView.swift; sourceTree = "<group>"; };
 		1A6BEF04242F12CB00C3F2CA /* KeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyManager.swift; sourceTree = "<group>"; };
+		1A6BEF08242F783000C3F2CA /* MatchForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchForm.swift; sourceTree = "<group>"; };
+		1A6BEF0A242F7FF100C3F2CA /* MatchRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchRow.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,8 +139,8 @@
 			isa = PBXGroup;
 			children = (
 				1A1D24E4242DAF9B002B230C /* MarketView.swift */,
-				1A1D24E8242DB68B002B230C /* MarketMasterView.swift */,
-				1A1D24E6242DB66F002B230C /* MarketDetailView.swift */,
+				1A6BEF0A242F7FF100C3F2CA /* MatchRow.swift */,
+				1A6BEF08242F783000C3F2CA /* MatchForm.swift */,
 			);
 			path = Market;
 			sourceTree = "<group>";
@@ -283,11 +283,9 @@
 				1A1D24F6242DD8DD002B230C /* SettingsView.swift in Sources */,
 				1A6BEEFB242EE46A00C3F2CA /* Mist.swift in Sources */,
 				1A1D2514242EAB73002B230C /* Match.swift in Sources */,
-				1A1D24E7242DB66F002B230C /* MarketDetailView.swift in Sources */,
 				1A1D24E5242DAF9B002B230C /* MarketView.swift in Sources */,
 				1A1D24E2242DAAEC002B230C /* AppState.swift in Sources */,
 				1A1D24D7242D95EB002B230C /* RootView.swift in Sources */,
-				1A1D24E9242DB68B002B230C /* MarketMasterView.swift in Sources */,
 				1A6BEEFD242EF36800C3F2CA /* Hex.swift in Sources */,
 				1A1D251A242EB6D7002B230C /* Encoder.swift in Sources */,
 				1A1D24F3242DD250002B230C /* Client.swift in Sources */,
@@ -295,8 +293,10 @@
 				1A1D24E0242DA961002B230C /* Store.swift in Sources */,
 				1A1D2516242EACC2002B230C /* Transaction.swift in Sources */,
 				1A6BEEF7242EDBCA00C3F2CA /* EmptyAccountView.swift in Sources */,
+				1A6BEF0B242F7FF100C3F2CA /* MatchRow.swift in Sources */,
 				1A6BEF00242F091100C3F2CA /* CellsView.swift in Sources */,
 				1A6BEEF5242EDAE400C3F2CA /* CellRow.swift in Sources */,
+				1A6BEF09242F783000C3F2CA /* MatchForm.swift in Sources */,
 				1A1D24EC242DD014002B230C /* Cell.swift in Sources */,
 				1A1D2518242EB277002B230C /* Message.swift in Sources */,
 				1A1D24D4242D9577002B230C /* Main.swift in Sources */,

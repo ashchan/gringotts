@@ -8,8 +8,8 @@ import SwiftUI
 struct CellRow: View {
     @EnvironmentObject var store: Store
     var cell: Cell
-    @State var tipNumber: UInt64
     var isHolder: Bool
+    var tipNumber: UInt64 { store.state.tipNumber }
 
     var status: Cell.Status {
         cell.status(tipNumber: tipNumber)
@@ -22,8 +22,12 @@ struct CellRow: View {
                     Text(cell.amountPerPeriod)
                         .font(.subheadline)
 
-                    Text("Status: ") + Text(status.description)
+                    Text("Status: ")
+                    +
+                    Text(status.description)
                         .foregroundColor(status.color)
+                    +
+                    Text(status != .normal ? " (\(cell.due(tipNumber: tipNumber)))" : "")
 
                     Text("Lease period: ") + Text("#\(cell.leasePeriod)")
                     Text("Overdue period: ") + Text("#\(cell.overduePeriod)")
@@ -92,6 +96,6 @@ extension Cell.Status {
 
 struct CellRow_Previews: PreviewProvider {
     static var previews: some View {
-        CellRow(cell: Cell.samples[0], tipNumber: 1_000, isHolder: true)
+        CellRow(cell: Cell.samples[0], isHolder: true)
     }
 }

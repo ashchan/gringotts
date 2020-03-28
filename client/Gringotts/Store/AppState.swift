@@ -14,6 +14,8 @@ struct AppState {
 
     var holderCells: [Cell] = []
     var builderCells: [Cell] = []
+
+    var matches: [Match] = []
 }
 
 extension AppState {

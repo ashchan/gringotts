@@ -11,13 +11,20 @@ struct MatchData: Codable {
     let builderPubkeyHash: String
     let leasePeriod: String
     let overduePeriod: String
-    let lastPaymentTime: String
+    let amountPerPeriod: String
     let leaseAmounts: String
 }
 
 struct Match: Decodable, Identifiable {
     let id: String
     let data: Data
+
+    var coinType: Cell.CoinType { Cell.CoinType.from(coinHash: data.info.coinHash) }
+    var status: String { data.status }
+
+    var canOffer: Bool { status == "created" }
+    var holderCanSign: Bool { status == "matched" }
+    var builderCanSign: Bool { status == "sign_matched" }
 
     struct Data: Decodable {
         let status: String

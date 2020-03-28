@@ -59,8 +59,6 @@ struct SettingsView: View {
 
                 if self.superMode {
                     HStack {
-                        Spacer()
-
                         Button(action: {
                             self.useDemo1()
                         }) {
@@ -84,22 +82,24 @@ struct SettingsView: View {
                         }) {
                             Text("Reset").frame(width: 50)
                         }
+
+                        Spacer()
                     }
                 }
 
                 HStack {
                     Button(action: {
-                        self.presentationMode.wrappedValue.dismiss()
+                        self.superMode.toggle()
                     }) {
-                        Text("Cancel").frame(width: 50)
+                        Text("Too young to die").frame(width: 150)
                     }
 
                     Spacer()
 
                     Button(action: {
-                        self.superMode.toggle()
+                        self.presentationMode.wrappedValue.dismiss()
                     }) {
-                        Text("Too young to die").frame(width: 150)
+                        Text("Cancel").frame(width: 50)
                     }
 
                     Button(action: {

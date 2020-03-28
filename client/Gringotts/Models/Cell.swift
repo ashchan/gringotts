@@ -10,14 +10,20 @@ struct Cell: Hashable, Codable, Identifiable {
     let outPoint: Transaction.OutPoint
     let data: String?
 
+    static let ckbCoinHash = "0x0000000000000000000000000000000000000000000000000000000000000000"
+    static let udtCoinHash = "0x5a68d2ee2127049bb7177c0d99b8bdc84adf6111d47c35a2fa0bbdf25b63acaa"
+
     var id: String { outPoint.txHash + outPoint.index }
 
     var coinType: CoinType {
-        leaseInfo.coinHash == "0x0000000000000000000000000000000000000000000000000000000000000000" ? .ckb : .udt
+        leaseInfo.coinHash == Self.ckbCoinHash ? .ckb : .udt
     }
 
     var amountPerPeriod: String {
-        leaseInfo.amountPerPeriod.numberFromHex.description + (coinType == .ckb ? " shannon" : " udt")
+        if coinType == .ckb {
+            return "\(leaseInfo.amountPerPeriod.numberFromHex / 100_000_000) CKB"
+        }
+        return leaseInfo.amountPerPeriod.numberFromHex.description + " UDT"
     }
 
     func status(tipNumber: UInt64) -> Status {
@@ -31,6 +37,10 @@ struct Cell: Hashable, Codable, Identifiable {
 
         // if lastPaymentTime + leasePeriod < tipNumber
         return .overdue
+    }
+
+    func due(tipNumber: UInt64) -> UInt64 {
+        tipNumber - lastPaymentTime - leasePeriod
     }
 
     func canClaim(tipNumber: UInt64) -> Bool {
@@ -53,9 +63,20 @@ extension Cell {
         }
     }
 
-    enum CoinType: String {
+    enum CoinType: String, CaseIterable, Identifiable {
         case ckb
         case udt
+
+        var id: String {
+            coinHash
+        }
+
+        var coinHash: String {
+            if self == .ckb {
+                return Cell.ckbCoinHash
+            }
+            return Cell.udtCoinHash
+        }
 
         var description: String {
             rawValue.uppercased()
@@ -63,6 +84,13 @@ extension Cell {
 
         var icon: String {
             "CoinType\(rawValue.uppercased())"
+        }
+
+        static func from(coinHash: String) -> Self {
+            if coinHash == Cell.ckbCoinHash {
+                return .ckb
+            }
+            return .udt
         }
     }
 }
