@@ -13,14 +13,15 @@ struct Cell: Hashable, Codable, Identifiable {
     var id: String { outPoint.txHash + outPoint.index }
 
     func status(tipNumber: UInt64) -> Status {
-        if lastPaymentTime + leasePeriod < tipNumber {
+        if lastPaymentTime + leasePeriod >= tipNumber {
             return .normal
         }
 
-        if lastPaymentTime + leasePeriod >= tipNumber && lastPaymentTime + leasePeriod + overduePeriod < tipNumber {
+        if lastPaymentTime + leasePeriod < tipNumber && lastPaymentTime + leasePeriod + overduePeriod >= tipNumber {
             return .due
         }
 
+        // if lastPaymentTime + leasePeriod < tipNumber
         return .overdue
     }
 
