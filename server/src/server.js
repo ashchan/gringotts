@@ -13,7 +13,9 @@ import {
   assembleTransaction,
   fillSignatures,
   serializeLeaseCellInfo,
-  validateLeaseCellInfo
+  validateLeaseCellInfo,
+  prepareUdtPayment,
+  defaultLockScript
 } from "./utilities";
 import { inspect, promisify } from "util";
 import { v4 as uuidv4 } from "uuid";
@@ -185,11 +187,33 @@ app.post(
     }
     let { cell, info: leaseCellInfo } = cells[0];
     const payAmount = BigInt(leaseCellInfo.amount_per_period);
-    const txTemplate = await collectCellForFees(
-      rpc,
-      builder_pubkey_hash,
-      payAmount + 100000000n
-    );
+    let txTemplate;
+    if (
+      leaseCellInfo.coin_hash ===
+      "0x0000000000000000000000000000000000000000000000000000000000000000"
+    ) {
+      txTemplate = await collectCellForFees(
+        rpc,
+        builder_pubkey_hash,
+        payAmount + 100000000n
+      );
+      txTemplate.outputs.push({
+        cell_output: {
+          capacity: "0x" + payAmount.toString(16),
+          lock: defaultLockScript(leaseCellInfo.holder_pubkey_hash),
+          type: null
+        }
+      });
+    } else {
+      txTemplate = await prepareUdtPayment(
+        rpc,
+        builder_pubkey_hash,
+        leaseCellInfo.holder_pubkey_hash,
+        leaseCellInfo.coin_hash,
+        payAmount
+      );
+    }
+    // Attach lease input/output cell
     const tipNumber = (await rpc.get_tip_header()).number;
     leaseCellInfo.last_payment_time = tipNumber;
     cell.since = tipNumber;
@@ -205,18 +229,6 @@ app.post(
         type: cell.type
       },
       data: cell.data
-    });
-    txTemplate.outputs.push({
-      cell_output: {
-        capacity: "0x" + payAmount.toString(16),
-        lock: {
-          code_hash:
-            "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
-          hash_type: "type",
-          args: leaseCellInfo.holder_pubkey_hash
-        },
-        type: null
-      }
     });
     const txData = assembleTransaction(txTemplate);
     const id = uuidv4();

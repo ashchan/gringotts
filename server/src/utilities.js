@@ -235,7 +235,7 @@ export function fillSignatures(tx, messagesToSign, signatures) {
   return tx;
 }
 
-export async function collectCellForFees(rpc, pubkeyHash, fee = 100000000n) {
+export function defaultLockScript(pubkeyHash) {
   const script = {
     code_hash:
       "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
@@ -243,6 +243,87 @@ export async function collectCellForFees(rpc, pubkeyHash, fee = 100000000n) {
     args: pubkeyHash
   };
   validators.ValidateScript(script);
+  return script;
+}
+
+export function unpackUdtAmount(data) {
+  const view = new DataView(new Reader(data).toArrayBuffer());
+  const a = view.getBitUint64(0, true);
+  const b = view.getBitUint64(0, true);
+  return (a << 64) | b;
+}
+
+export function packUdtAmount(amount) {
+  const a = amount & BigInt("0xFFFFFFFFFFFFFFFF");
+  const b = (amount >> 64) & BigInt("0xFFFFFFFFFFFFFFFF");
+  const view = new DataView(new ArrayBuffer(16));
+  view.setBigUint64(0, a, true);
+  view.setBigUint64(8, b, true);
+  return new Reader(view.buffer);
+}
+
+export async function prepareUdtPayment(
+  rpc,
+  pubkeyHash,
+  targetPubkeyHash,
+  coinHash,
+  amount
+) {
+  const script = defaultLockScript(pubkeyHash);
+  const scriptHash = ckbHash(
+    blockchain.SerializeScript(normalizers.NormalizeScript(script))
+  );
+  const collector = new Collector(
+    rpc,
+    {
+      [nohm.KEY_LOCK_HASH]: scriptHash.serializeJson(),
+      [nohm.KEY_TYPE_HASH]: new Reader(coinHash).serializeJson()
+    },
+    {
+      skipCellWithContent: false,
+      loadData: true
+    }
+  );
+  let currentCapacity = BigInt(0);
+  let currentAmount = BigInt(0);
+  let currentCells = [];
+  for await (const cell of collector.collect()) {
+    currentCells.push(cell);
+    currentCapacity += BigInt(cell.cell_output.capacity);
+    currentAmount += unpackUdtAmount(cell.data);
+  }
+  if (currentCapacity < 100000000n + 14200000000n + 14200000000n) {
+    throw new Error("Not enough capacity!");
+  }
+  if (currentAmount < amount) {
+    throw new Error("Not enough UDTs!");
+  }
+  return {
+    inputs: currentCells,
+    outputs: [
+      {
+        cell_output: {
+          capacity: "0x" + 14200000000n.toString(16),
+          lock: defaultLockScript(targetPubkeyHash),
+          type: cells[0].cell_output.type
+        },
+        data: packUdtAmount(amount).serializeJson()
+      },
+      {
+        cell_output: {
+          capacity:
+            "0x" + (currentCapacity - 14200000000n - 100000000n).toString(16),
+          lock: script,
+          type: cells[0].cell_output.type
+        },
+        data: packUdtAmount(currentAmount - amount).serializeJson()
+      }
+    ]
+  };
+}
+
+export async function collectCellForFees(rpc, pubkeyHash, fee = 100000000n) {
+  const script = defaultLockScript(pubkeyHash);
   const scriptHash = ckbHash(
     blockchain.SerializeScript(normalizers.NormalizeScript(script))
   );
@@ -283,13 +364,7 @@ export async function createLeaseCell(
   leaseCellInfo,
   capacity
 ) {
-  const script = {
-    code_hash:
-      "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
-    hash_type: "type",
-    args: publicKeyHash(privateKey)
-  };
-  validators.ValidateScript(script);
+  const script = defaultLockScript(publicKeyHash(privateKey));
   const scriptHash = ckbHash(
     blockchain.SerializeScript(normalizers.NormalizeScript(script))
   );

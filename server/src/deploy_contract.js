@@ -11,7 +11,8 @@ import {
   createLeaseCell,
   assembleTransaction,
   fillSignatures,
-  secpSign
+  secpSign,
+  defaultLockScript
 } from "./utilities";
 import { argv, exit } from "process";
 import * as fs from "fs";
@@ -33,13 +34,7 @@ client.on("connect", async () => {
     BigInt(binary.length()) * BigInt(100000000n) + BigInt(6100000000n);
   const privateKey = argv[2];
 
-  const script = {
-    code_hash:
-      "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
-    hash_type: "type",
-    args: publicKeyHash(privateKey)
-  };
-  validators.ValidateScript(script);
+  const script = defaultLockScript(publicKeyHash(privateKey));
   const scriptHash = ckbHash(
     blockchain.SerializeScript(normalizers.NormalizeScript(script))
   );
