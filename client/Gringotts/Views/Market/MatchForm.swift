@@ -81,6 +81,7 @@ struct MatchForm: View {
             Spacer()
         }
         .padding()
+        .background(Color("FormBackground"))
     }
 
     func cancel() {

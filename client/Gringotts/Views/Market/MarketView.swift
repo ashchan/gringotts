@@ -29,6 +29,7 @@ struct MarketView: View {
                     MatchRow(match: match)
                 }
             }
+            .padding(EdgeInsets(top: 10, leading: 6, bottom: 32, trailing: 6))
             .onAppear {
                 self.refreshIfNecessary()
             }
@@ -48,9 +49,9 @@ struct MarketView: View {
 
             if publishFormExpanded {
                 MatchForm(isPresented: $publishFormExpanded)
-                    .background(Color.yellow)
             }
         }
+        .background(Color.white)
     }
 }
 

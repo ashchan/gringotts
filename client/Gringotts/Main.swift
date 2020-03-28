@@ -24,7 +24,6 @@ class HostingController: NSHostingController<AnyView> {
             index = .lender
         }
 
-        store.state.balance = "0"
         store.state.viewTab.selected = index
     }
 

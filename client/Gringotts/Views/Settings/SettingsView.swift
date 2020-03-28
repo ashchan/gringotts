@@ -182,13 +182,11 @@ private extension SettingsView {
     }
 
     var isHolderAddressValid: Bool {
-        // TODO: check more
         return (holderAddress.starts(with: "ckt1qyq") || holderAddress.starts(with: "ckb1qy")) &&
             holderAddress.count == 46
     }
 
     var isBuilderAddressValid: Bool {
-        // TODO: check more
         return (builderAddress.starts(with: "ckt1qyq") || builderAddress.starts(with: "ckb1qy")) &&
             builderAddress.count == 46
     }

@@ -25,6 +25,10 @@ extension Store {
         NotificationCenter.default.post(name: .showSettingsView, object: nil)
     }
 
+    func showMessage(_ message: String) {
+        NotificationCenter.default.post(name: .showMessage, object: nil, userInfo: ["message": message])
+    }
+
     func updateClient() {
         client = Client(state.settings.apiServer)
     }
@@ -115,8 +119,7 @@ extension Store {
             .sink(receiveCompletion: { completion in
                 print(completion)
             }) { result in
-                // TODO: notify user
-                print(result)
+                self.showMessage("Transaction submitted (\(result.txHash))")
             }
             .store(in: &cancellables)
     }
@@ -139,6 +142,7 @@ extension Store {
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
             }) { match in
+                self.showMessage("Match was published.")
                 self.state.matches.insert(match, at: 0)
             }
             .store(in: &cancellables)
@@ -163,8 +167,7 @@ extension Store {
             .sink(receiveCompletion: { completion in
                 print(completion)
             }) { result in
-                // TODO: notify user
-                print(result)
+                self.showMessage("Match was signed.")
                 self.loadMatches()
             }
             .store(in: &cancellables)
@@ -178,8 +181,7 @@ extension Store {
             .sink(receiveCompletion: { completion in
                 print(completion)
             }) { result in
-                // TODO: notify user
-                print(result)
+                self.showMessage("Match was confirmed.")
                 self.loadMatches()
             }
             .store(in: &cancellables)
@@ -188,4 +190,5 @@ extension Store {
 
 extension Notification.Name {
     static let showSettingsView = Notification.Name("showSettingsView")
+    static let showMessage = Notification.Name("showMessage")
 }

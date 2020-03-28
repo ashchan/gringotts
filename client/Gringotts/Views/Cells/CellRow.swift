@@ -10,15 +10,16 @@ struct CellRow: View {
     var cell: Cell
     var isHolder: Bool
     var tipNumber: UInt64 { store.state.tipNumber }
+    @State var showChangeDataForm = false
 
     var status: Cell.Status {
         cell.status(tipNumber: tipNumber)
     }
 
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             HStack(alignment: .center) {
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 10) {
                     Text(cell.amountPerPeriod)
                         .font(.subheadline)
 
@@ -42,12 +43,15 @@ struct CellRow: View {
                 }
             }
 
-            HStack {
-                Text("Data: ")
-                Text(cell.data ?? "0x")
+            if showChangeDataForm {
+                ChangeDataForm(isPresented: $showChangeDataForm, cell: cell)
+                    .cornerRadius(10)
+            } else {
+                HStack {
+                    Text("Data: ")
+                    Text(cell.dataMessage)
+                }
             }
-
-            Divider()
 
             if isHolder {
                 if cell.canClaim(tipNumber: tipNumber) {
@@ -62,9 +66,10 @@ struct CellRow: View {
                 }
             } else {
                 HStack {
+                    Spacer()
+
                     Button(action: {
-                        // TODO: allow to input data
-                        self.store.changeData(cell: self.cell, data: "0xffffff")
+                        self.showChangeDataForm.toggle()
                     }) {
                         Text("Change data")
                     }
@@ -74,12 +79,13 @@ struct CellRow: View {
                     }) {
                         Text("Pay")
                     }
-                    Spacer()
                 }
             }
         }
         .font(.custom("Helvetica", size: 14))
         .padding(10)
+        .background(Color.white)
+        .foregroundColor(.black)
         .overlay(
             RoundedRectangle(cornerRadius: 10)
                 .stroke(status.color, lineWidth: 4)

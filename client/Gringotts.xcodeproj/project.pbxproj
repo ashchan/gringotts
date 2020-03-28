@@ -34,6 +34,7 @@
 		1A6BEF05242F12CB00C3F2CA /* KeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEF04242F12CB00C3F2CA /* KeyManager.swift */; };
 		1A6BEF09242F783000C3F2CA /* MatchForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEF08242F783000C3F2CA /* MatchForm.swift */; };
 		1A6BEF0B242F7FF100C3F2CA /* MatchRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEF0A242F7FF100C3F2CA /* MatchRow.swift */; };
+		1A6BEF0D242FDA1E00C3F2CA /* ChangeDataForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEF0C242FDA1E00C3F2CA /* ChangeDataForm.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -66,6 +67,7 @@
 		1A6BEF04242F12CB00C3F2CA /* KeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyManager.swift; sourceTree = "<group>"; };
 		1A6BEF08242F783000C3F2CA /* MatchForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchForm.swift; sourceTree = "<group>"; };
 		1A6BEF0A242F7FF100C3F2CA /* MatchRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchRow.swift; sourceTree = "<group>"; };
+		1A6BEF0C242FDA1E00C3F2CA /* ChangeDataForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeDataForm.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -197,8 +199,9 @@
 		1A6BEEFE242F08F200C3F2CA /* Cells */ = {
 			isa = PBXGroup;
 			children = (
-				1A6BEEF4242EDAE400C3F2CA /* CellRow.swift */,
 				1A6BEEFF242F091100C3F2CA /* CellsView.swift */,
+				1A6BEEF4242EDAE400C3F2CA /* CellRow.swift */,
+				1A6BEF0C242FDA1E00C3F2CA /* ChangeDataForm.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -295,6 +298,7 @@
 				1A6BEEF7242EDBCA00C3F2CA /* EmptyAccountView.swift in Sources */,
 				1A6BEF0B242F7FF100C3F2CA /* MatchRow.swift in Sources */,
 				1A6BEF00242F091100C3F2CA /* CellsView.swift in Sources */,
+				1A6BEF0D242FDA1E00C3F2CA /* ChangeDataForm.swift in Sources */,
 				1A6BEEF5242EDAE400C3F2CA /* CellRow.swift in Sources */,
 				1A6BEF09242F783000C3F2CA /* MatchForm.swift in Sources */,
 				1A1D24EC242DD014002B230C /* Cell.swift in Sources */,

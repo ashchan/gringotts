@@ -15,6 +15,11 @@ struct Cell: Hashable, Codable, Identifiable {
 
     var id: String { outPoint.txHash + outPoint.index }
 
+    var dataMessage: String {
+        let hex = Data(hex: data ?? "")
+        return String(data: hex, encoding: .utf8) ?? ""
+    }
+
     var coinType: CoinType {
         leaseInfo.coinHash == Self.ckbCoinHash ? .ckb : .udt
     }

@@ -7,7 +7,6 @@ import SwiftUI
 
 struct CellsView: View {
     @EnvironmentObject var store: Store
-    @State private var selectedCell: Cell?
 
     private var viewType: ViewType { store.state.viewTab.selected == .lender ? .holder : .builder }
     private var isHolder: Bool { viewType == .holder }
@@ -31,7 +30,7 @@ struct CellsView: View {
                     Spacer()
                 }
             } else {
-                List(selection: $selectedCell) {
+                ScrollView {
                     HStack(alignment: .top) {
                         VStack(alignment: .leading) {
                             Text("\(self.store.state.balance.numberFromHex / 100_000_000)")
@@ -55,14 +54,15 @@ struct CellsView: View {
 
                     ForEach(cells) { cell in
                         CellRow(cell: cell, isHolder: self.isHolder)
-                            .tag(cell)
                     }
                 }
+                .padding()
                 .onAppear {
                     self.refreshIfNecessary()
                 }
             }
         }
+        .background(Color.white)
     }
 }
 
