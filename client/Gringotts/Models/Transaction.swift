@@ -8,34 +8,22 @@ import Foundation
 struct Transaction: Codable {
     let txHash: String?
     let version: String?
-    let inputs: [CellInput]
-    let outputs: [CellOutput]
+    let inputs: [Input]
+    let outputs: [Output]
     let cellDeps: [CellDep]?
     let headerDeps: [String]?
     let outputsData: [String]?
     let witnesses: [String]?
 
-    struct CellInput: Codable {
+    struct Input: Codable {
         let previousOutput: OutPoint
         let since: String
     }
 
-    struct CellOutput: Codable {
+    struct Output: Codable {
         let capacity: String
         let lock: Script
         let type: String?
-    }
-
-    struct Input: Codable {
-        let cellOutput: CellOutput?
-        let outPoint: OutPoint?
-        let blockHash: String?
-        let data: String?
-    }
-
-    struct Output: Codable {
-        let cellOutput: CellOutput
-        let data: String?
     }
 
     struct OutPoint: Codable {
