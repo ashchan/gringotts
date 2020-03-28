@@ -337,7 +337,7 @@ app.post("/matches/create", async (req, res) => {
     amount_per_period,
     lease_amounts
   } = req.body;
-  const text = req.data.text || "";
+  const text = req.body.text || "";
   const txTemplate = await collectCellForFees(
     rpc,
     builder_pubkey_hash,
