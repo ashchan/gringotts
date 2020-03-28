@@ -13,19 +13,11 @@ struct ChangeDataForm: View {
 
     var body: some View {
         Form {
-            Text("Update cell data")
-                .font(.caption)
-
-            Section {
-                HStack {
-                    Text("Data")
-                        .font(.caption)
-                        .frame(width: 150, alignment: .trailing)
-                    TextField("Input a message as data", text: $data)
-                }
+            HStack {
+                Text("Data: ")
+                TextField("Input a message as data", text: $data)
+                    .offset(x: -4, y: -1)
             }
-
-            Divider()
 
             HStack {
                 Spacer()
@@ -41,8 +33,6 @@ struct ChangeDataForm: View {
 
             Spacer()
         }
-        .padding()
-        .background(Color("FormBackground"))
         .onAppear {
             self.data = self.cell.dataMessage
         }

@@ -20,8 +20,14 @@ struct CellRow: View {
         VStack(alignment: .leading) {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 10) {
-                    Text(cell.amountPerPeriod)
-                        .font(.subheadline)
+                    HStack {
+                        Image(cell.coinType.icon)
+                            .resizable()
+                            .frame(width: 20, height: 20)
+                        Text(cell.amountPerPeriod)
+                            .font(.subheadline)
+                        Spacer()
+                    }
 
                     Text("Status: ")
                     +
@@ -33,24 +39,19 @@ struct CellRow: View {
                     Text("Last payment time: ") + Text("#\(cell.lastPaymentTime)")
                 }
                 Spacer()
-                VStack(alignment: .trailing) {
-                    Image(cell.coinType.icon)
-                        .resizable()
-                        .frame(width: 40, height: 40)
-                    Spacer()
-                }
             }
 
             if showChangeDataForm {
                 ChangeDataForm(isPresented: $showChangeDataForm, cell: cell)
-                    .cornerRadius(10)
             } else {
                 HStack {
                     Text("Data: ")
                     Text(cell.dataMessage)
                 }
-                .padding(.vertical)
+                .padding(.vertical, 10)
             }
+
+            Divider()
 
             if isHolder {
                 if cell.canClaim(tipNumber: tipNumber) {
