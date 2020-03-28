@@ -35,6 +35,8 @@
 		1A6BEEF5242EDAE400C3F2CA /* CellRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEEF4242EDAE400C3F2CA /* CellRow.swift */; };
 		1A6BEEF7242EDBCA00C3F2CA /* EmptyAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEEF6242EDBCA00C3F2CA /* EmptyAccountView.swift */; };
 		1A6BEEF9242EDE1700C3F2CA /* Logo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEEF8242EDE1700C3F2CA /* Logo.swift */; };
+		1A6BEEFB242EE46A00C3F2CA /* Mist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEEFA242EE46A00C3F2CA /* Mist.swift */; };
+		1A6BEEFD242EF36800C3F2CA /* Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEEFC242EF36800C3F2CA /* Hex.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -69,6 +71,8 @@
 		1A6BEEF4242EDAE400C3F2CA /* CellRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellRow.swift; sourceTree = "<group>"; };
 		1A6BEEF6242EDBCA00C3F2CA /* EmptyAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyAccountView.swift; sourceTree = "<group>"; };
 		1A6BEEF8242EDE1700C3F2CA /* Logo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logo.swift; sourceTree = "<group>"; };
+		1A6BEEFA242EE46A00C3F2CA /* Mist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mist.swift; sourceTree = "<group>"; };
+		1A6BEEFC242EF36800C3F2CA /* Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Hex.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -175,6 +179,7 @@
 				1A1D2513242EAB73002B230C /* Match.swift */,
 				1A1D2515242EACC2002B230C /* Transaction.swift */,
 				1A1D2517242EB277002B230C /* Message.swift */,
+				1A6BEEFA242EE46A00C3F2CA /* Mist.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -201,6 +206,7 @@
 			isa = PBXGroup;
 			children = (
 				1A1D24F8242DF12E002B230C /* UserDefault.swift */,
+				1A6BEEFC242EF36800C3F2CA /* Hex.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -288,6 +294,7 @@
 				1A1D24F9242DF12E002B230C /* UserDefault.swift in Sources */,
 				1A1D24F6242DD8DD002B230C /* SettingsView.swift in Sources */,
 				1A1D24DD242D9B71002B230C /* BorrowerView.swift in Sources */,
+				1A6BEEFB242EE46A00C3F2CA /* Mist.swift in Sources */,
 				1A1D2514242EAB73002B230C /* Match.swift in Sources */,
 				1A1D250E242DF988002B230C /* LenderDetailView.swift in Sources */,
 				1A1D24E7242DB66F002B230C /* MarketDetailView.swift in Sources */,
@@ -297,6 +304,7 @@
 				1A1D24D7242D95EB002B230C /* RootView.swift in Sources */,
 				1A1D24E9242DB68B002B230C /* MarketMasterView.swift in Sources */,
 				1A1D250C242DF971002B230C /* LenderMasterView.swift in Sources */,
+				1A6BEEFD242EF36800C3F2CA /* Hex.swift in Sources */,
 				1A1D251A242EB6D7002B230C /* Encoder.swift in Sources */,
 				1A1D24F3242DD250002B230C /* Client.swift in Sources */,
 				1A6BEEF9242EDE1700C3F2CA /* Logo.swift in Sources */,

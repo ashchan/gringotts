@@ -88,6 +88,7 @@ private extension SettingsView {
         store.state.settings.apiServer = apiServer
         store.state.settings.holderAddress = holderAddress
         store.state.settings.builderAddress = builderAddress
+        store.updateClient()
     }
 
     var isFormValid: Bool {

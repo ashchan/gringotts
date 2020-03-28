@@ -8,9 +8,14 @@ import Combine
 
 final class Store: ObservableObject {
     @Published var state = AppState()
+    private var client: Client?
     private var cancellables = Set<AnyCancellable>()
 
+    private var tipNumberTimer: Timer?
+    private var tipNumberCancellable: AnyCancellable?
+
     init() {
+        updateClient()
     }
 }
 
@@ -20,9 +25,26 @@ extension Store {
         NotificationCenter.default.post(name: .showSettingsView, object: nil)
     }
 
+    func updateClient() {
+        client = Client(state.settings.apiServer)
+    }
+
+    func updateTipNumberPublisher() {
+        tipNumberTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { timer in
+            self.tipNumberCancellable?.cancel()
+            self.tipNumberCancellable = self.client!.publisher(for: .tipHeader)
+                .decode(type: TipNumber.self, decoder: JSONDecoder.apiDecoder)
+                .print()
+                .map { $0.tipNumber.numberFromHex }
+                .replaceError(with: 0)
+                .receive(on: DispatchQueue.main)
+                .assign(to: \.state.tipNumber, on: self)
+        }
+        tipNumberTimer?.fire()
+    }
+
     func testApiServer() {
-        let client = Client(state.settings.apiServer)
-        client.publisher(for: .holderCells(pubkeyHash: "0xc8328aabcd9b9e8e64fbc566c4385c3bdeb219d7"))
+        client?.publisher(for: .holderCells(pubkeyHash: "0xc8328aabcd9b9e8e64fbc566c4385c3bdeb219d7"))
             .decode(type: [Cell].self, decoder: JSONDecoder.apiDecoder)
             .print()
             .replaceError(with: [])

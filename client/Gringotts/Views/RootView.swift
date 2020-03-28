@@ -12,7 +12,7 @@ struct RootView: View {
     private let showSettingViewTriggered = NotificationCenter.default.publisher(for: .showSettingsView).receive(on: RunLoop.main)
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottomTrailing) {
             HStack {
                 if store.state.viewTab.selected == .borrower {
                     BorrowerView()
@@ -22,6 +22,11 @@ struct RootView: View {
                     LenderView()
                 }
             }
+            Text("#\(store.state.tipNumber)")
+                .font(.system(size: 10, weight: .thin, design: .monospaced))
+                .frame(width: 100, height: 20)
+                .background(Color.white.opacity(0.8))
+                .cornerRadius(3)
         }
         .sheet(isPresented: $showSettingsView) {
             SettingsView().environmentObject(self.store)
@@ -29,6 +34,9 @@ struct RootView: View {
         .frame(minWidth: 700, minHeight: 320)
         .onReceive(showSettingViewTriggered) { _ in
             self.showSettingsView = true
+        }
+        .onAppear {
+            self.store.updateTipNumberPublisher()
         }
     }
 }

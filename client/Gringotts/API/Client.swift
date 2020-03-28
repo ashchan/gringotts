@@ -52,10 +52,14 @@ extension Client {
         case pay(cell: Cell, pubkeyHash: String)
         case claim(cell: Cell, pubkeyHash: String)
         case sendSignedTransaction(tx: SigningTx)
+
         case createMatch(data: MatchData)
         case listMatches
         case match(id: String, pubkeyHash: String)
         case signMatch(id: String, signatures: [String])
+
+        case balance(pubkeyHash: String)
+        case tipHeader
 
         var path: String {
             switch self {
@@ -79,6 +83,10 @@ extension Client {
                 return "matches/\(id)/match"
             case .signMatch(let id, _):
                 return "matches/\(id)/sign_match"
+            case .balance(let pubkeyHash):
+                return "balances/\(pubkeyHash)"
+            case .tipHeader:
+                return "tip_header"
             }
         }
 

@@ -8,6 +8,7 @@ import Foundation
 struct AppState {
     var viewTab = ViewTab()
     var settings = Settings()
+    var tipNumber = UInt64(0)
 }
 
 extension AppState {
