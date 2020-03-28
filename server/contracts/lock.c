@@ -18,6 +18,8 @@
 #error "Temp buffer is not big enough!"
 #endif
 
+typedef unsigned __int128 uint128_t;
+
 /*
  * Arguments:
  * pubkey blake160 hash, blake2b hash of pubkey first 20 bytes, used to
@@ -343,9 +345,17 @@ int main() {
         return -108;
       }
       /*
-       * TODO: check that correct amount has been paid to the holder
+       * Check that correct amount has been paid to the holder.
        */
       uint64_t amount_per_period = *((uint64_t*) (&args_bytes_seg.ptr[96]));
+      const uint8_t *coin_hash = &args_bytes_seg.ptr[40];
+      int pay_udt = 0;
+      for (int j = 0; j < 32; j++) {
+        if (coin_hash[j] > 0) {
+          pay_udt = 1;
+          break;
+        }
+      }
       i = 0;
       while (1) {
         unsigned char temp_script[SCRIPT_SIZE];
@@ -377,19 +387,52 @@ int main() {
             (temp_hash_type_seg.ptr[0] == 1) &&
             (temp_args_bytes_seg.size == 20) &&
             (memcmp(temp_args_bytes_seg.ptr, output_args_bytes_seg.ptr, 20) == 0)) {
-          break;
+          if (pay_udt) {
+            /* Check UDT type hash as well */
+            unsigned char type_hash[32];
+            len = 32;
+            ret = ckb_load_cell_by_field(type_hash, &len, 0, i, CKB_SOURCE_OUTPUT,
+                                         CKB_CELL_FIELD_TYPE_HASH);
+            if (ret == CKB_SUCCESS && len == 32) {
+              if (memcmp(type_hash, coin_hash, 32) == 0) {
+                break;
+              }
+            }
+          } else {
+            break;
+          }
         }
         i++;
       }
-      uint64_t pay_capacity = 0;
-      len = 8;
-      ret = ckb_load_cell_by_field((uint8_t*) &pay_capacity, &len, 0, i,
-                                   CKB_SOURCE_OUTPUT, CKB_CELL_FIELD_CAPACITY);
-      if (ret != CKB_SUCCESS) {
-        return ret;
+      uint64_t pay_amount = 0;
+      if (pay_udt) {
+        uint128_t udt_amount = 0;
+        len = 16;
+        ret = ckb_load_cell_data((uint8_t *)&udt_amount, &len, 0, i,
+                                 CKB_SOURCE_OUTPUT);
+        if (ret != CKB_SUCCESS) {
+          return ret;
+        }
+        if (len != 16) {
+          return -109;
+        }
+        if (udt_amount > UINT64_MAX) {
+          return -110;
+        }
+        pay_amount = (uint64_t) udt_amount;
+      } else {
+        len = 8;
+        ret = ckb_load_cell_by_field((uint8_t*) &pay_amount, &len, 0, i,
+                                     CKB_SOURCE_OUTPUT, CKB_CELL_FIELD_CAPACITY);
+        if (ret != CKB_SUCCESS) {
+          return ret;
+        }
+        if (len != 8) {
+          return -111;
+        }
       }
-      if (pay_capacity != amount_per_period) {
-        return -109;
+      if (pay_amount != amount_per_period) {
+        return -112;
       }
       ckb_debug("Pay success");
     }
