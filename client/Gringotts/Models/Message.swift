@@ -7,7 +7,7 @@ import Foundation
 
 struct SigningMessage: Codable {
     let id: String
-    let messagesToSign: [Message]?
+    let messagesToSign: [Message]
 
     enum CodingKeys: String, CodingKey {
         case id
