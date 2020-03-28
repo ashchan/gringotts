@@ -10,23 +10,9 @@ struct BorrowerDetailView: View {
 
     var body: some View {
         List {
-            if store.state.settings.builderAddress.isEmpty {
-                HStack() {
-                    Text("You haven't configured account yet.")
-                        .font(.title)
-
-                    Button(action: {
-                        self.store.showSettingsView()
-                    }) {
-                        Text("+ Add Your Account")
-                    }
-                }
+            Text("Builder Detail")
+                .font(.largeTitle)
                 .padding()
-            } else {
-                Text("Builder Detail")
-                    .font(.largeTitle)
-                    .padding()
-            }
         }
     }
 }

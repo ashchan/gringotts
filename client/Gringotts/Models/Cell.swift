@@ -5,7 +5,7 @@
 
 import Foundation
 
-struct Cell: Decodable, Identifiable {
+struct Cell: Hashable, Codable, Identifiable {
     let leaseInfo: LeaseInfo
     let outPoint: Transaction.OutPoint
     let data: String?
@@ -13,7 +13,7 @@ struct Cell: Decodable, Identifiable {
     var id: String { outPoint.txHash + outPoint.index }
 }
 
-struct LeaseInfo: Decodable {
+struct LeaseInfo: Hashable, Codable {
     let holderPubkeyHash: String
     let builderPubkeyHash: String
     let coinHash: String

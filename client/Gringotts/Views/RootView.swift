@@ -26,12 +26,9 @@ struct RootView: View {
         .sheet(isPresented: $showSettingsView) {
             SettingsView().environmentObject(self.store)
         }
-        .frame(minWidth: 640, minHeight: 320)
+        .frame(minWidth: 700, minHeight: 320)
         .onReceive(showSettingViewTriggered) { _ in
             self.showSettingsView = true
-        }
-        .onAppear() {
-            self.store.testApiServer()
         }
     }
 }

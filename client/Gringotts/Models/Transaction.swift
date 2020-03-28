@@ -26,7 +26,7 @@ struct Transaction: Codable {
         let type: String?
     }
 
-    struct OutPoint: Codable {
+    struct OutPoint: Codable, Hashable {
         let txHash: String
         let index: String
     }

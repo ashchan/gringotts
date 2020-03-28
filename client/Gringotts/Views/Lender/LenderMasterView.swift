@@ -6,10 +6,16 @@
 import SwiftUI
 
 struct LenderMasterView: View {
+    @Binding var selectedCell: Cell?
+
     var body: some View {
         VStack {
-            Text("Hello Holder")
-            Spacer()
+            List(selection: $selectedCell) {
+                ForEach(Cell.samples) { cell in
+                    CellRow(cell: cell).tag(cell)
+                }
+            }
+            .listStyle(SidebarListStyle())
         }
         .frame(minWidth: 220, maxWidth: 400)
     }
@@ -17,6 +23,6 @@ struct LenderMasterView: View {
 
 struct LenderMasterView_Previews: PreviewProvider {
     static var previews: some View {
-        LenderMasterView()
+        LenderMasterView(selectedCell: .constant(Cell.samples[0]))
     }
 }

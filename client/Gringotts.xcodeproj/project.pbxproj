@@ -32,6 +32,9 @@
 		1A1D2516242EACC2002B230C /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D2515242EACC2002B230C /* Transaction.swift */; };
 		1A1D2518242EB277002B230C /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D2517242EB277002B230C /* Message.swift */; };
 		1A1D251A242EB6D7002B230C /* Encoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A1D2519242EB6D7002B230C /* Encoder.swift */; };
+		1A6BEEF5242EDAE400C3F2CA /* CellRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEEF4242EDAE400C3F2CA /* CellRow.swift */; };
+		1A6BEEF7242EDBCA00C3F2CA /* EmptyAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEEF6242EDBCA00C3F2CA /* EmptyAccountView.swift */; };
+		1A6BEEF9242EDE1700C3F2CA /* Logo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEEF8242EDE1700C3F2CA /* Logo.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,6 +66,9 @@
 		1A1D2515242EACC2002B230C /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
 		1A1D2517242EB277002B230C /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
 		1A1D2519242EB6D7002B230C /* Encoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Encoder.swift; sourceTree = "<group>"; };
+		1A6BEEF4242EDAE400C3F2CA /* CellRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CellRow.swift; sourceTree = "<group>"; };
+		1A6BEEF6242EDBCA00C3F2CA /* EmptyAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyAccountView.swift; sourceTree = "<group>"; };
+		1A6BEEF8242EDE1700C3F2CA /* Logo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logo.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +119,7 @@
 		1A1D24D5242D95DC002B230C /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				1A6BEEF3242EDAD400C3F2CA /* Common */,
 				1A1D24D8242D9B25002B230C /* Lender */,
 				1A1D24D9242D9B38002B230C /* Borrower */,
 				1A1D24E3242DAF10002B230C /* Market */,
@@ -196,6 +203,16 @@
 				1A1D24F8242DF12E002B230C /* UserDefault.swift */,
 			);
 			path = Utils;
+			sourceTree = "<group>";
+		};
+		1A6BEEF3242EDAD400C3F2CA /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				1A6BEEF4242EDAE400C3F2CA /* CellRow.swift */,
+				1A6BEEF6242EDBCA00C3F2CA /* EmptyAccountView.swift */,
+				1A6BEEF8242EDE1700C3F2CA /* Logo.swift */,
+			);
+			path = Common;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -282,8 +299,11 @@
 				1A1D250C242DF971002B230C /* LenderMasterView.swift in Sources */,
 				1A1D251A242EB6D7002B230C /* Encoder.swift in Sources */,
 				1A1D24F3242DD250002B230C /* Client.swift in Sources */,
+				1A6BEEF9242EDE1700C3F2CA /* Logo.swift in Sources */,
 				1A1D24E0242DA961002B230C /* Store.swift in Sources */,
 				1A1D2516242EACC2002B230C /* Transaction.swift in Sources */,
+				1A6BEEF7242EDBCA00C3F2CA /* EmptyAccountView.swift in Sources */,
+				1A6BEEF5242EDAE400C3F2CA /* CellRow.swift in Sources */,
 				1A1D24EC242DD014002B230C /* Cell.swift in Sources */,
 				1A1D2512242DFD2F002B230C /* BorrowerDetailView.swift in Sources */,
 				1A1D2518242EB277002B230C /* Message.swift in Sources */,

@@ -7,21 +7,11 @@ import SwiftUI
 
 struct LenderDetailView: View {
     @EnvironmentObject var store: Store
+    var cell: Cell
 
     var body: some View {
         List {
             if store.state.settings.holderAddress.isEmpty {
-                HStack() {
-                    Text("You haven't configured account yet.")
-                        .font(.title)
-
-                    Button(action: {
-                        self.store.showSettingsView()
-                    }) {
-                        Text("+ Add Your Account")
-                    }
-                }
-                .padding()
             } else {
                 Text("Holder Detail")
                     .font(.largeTitle)
@@ -33,6 +23,6 @@ struct LenderDetailView: View {
 
 struct LenderDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        LenderDetailView().environmentObject(Store())
+        LenderDetailView(cell: Cell.samples[0]).environmentObject(Store())
     }
 }

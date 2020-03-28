@@ -6,10 +6,21 @@
 import SwiftUI
 
 struct BorrowerView: View {
+    @EnvironmentObject var store: Store
+    @State private var selectedCell: Cell?
+    var cells: [Cell] = []
+
     var body: some View {
         NavigationView {
-            BorrowerMasterView()
-            BorrowerDetailView()
+            if store.state.settings.builderAddress.isEmpty {
+                Logo()
+                    .padding()
+                EmptyAccountView(prompt: "You haven't configured BUILDER account yet.")
+                    .padding()
+            } else {
+                BorrowerMasterView()
+                BorrowerDetailView()
+            }
         }
     }
 }
