@@ -25,10 +25,8 @@ struct CellRow: View {
 
                     Text("Status: ")
                     +
-                    Text(status.description)
+                    Text(status.description + (status != .normal ? " (\(cell.due(tipNumber: tipNumber)))" : ""))
                         .foregroundColor(status.color)
-                    +
-                    Text(status != .normal ? " (\(cell.due(tipNumber: tipNumber)))" : "")
 
                     Text("Lease period: ") + Text("#\(cell.leasePeriod)")
                     Text("Overdue period: ") + Text("#\(cell.overduePeriod)")
@@ -51,35 +49,42 @@ struct CellRow: View {
                     Text("Data: ")
                     Text(cell.dataMessage)
                 }
+                .padding(.vertical)
             }
 
             if isHolder {
                 if cell.canClaim(tipNumber: tipNumber) {
-                    HStack {
+                    HStack(alignment: .center, spacing: 20) {
+                        Spacer()
+
                         Button(action: {
                             self.store.claim(cell: self.cell)
                         }) {
-                            Text("Claim")
+                            ActionButton(image: "lock", title: "Claim")
                         }
-                        Spacer()
+                        .buttonStyle(ActionButtonStyle())
                     }
+                    .padding()
                 }
             } else {
-                HStack {
+                HStack(alignment: .center, spacing: 20) {
                     Spacer()
 
                     Button(action: {
                         self.showChangeDataForm.toggle()
                     }) {
-                        Text("Change data")
+                        ActionButton(image: "pencil", title: "Change data")
                     }
+                    .buttonStyle(ActionButtonStyle())
 
                     Button(action: {
                         self.store.pay(cell: self.cell)
                     }) {
-                        Text("Pay")
+                        ActionButton(image: "unlock", title: "Pay")
                     }
+                    .buttonStyle(ActionButtonStyle())
                 }
+                .padding()
             }
         }
         .font(.custom("Helvetica", size: 14))

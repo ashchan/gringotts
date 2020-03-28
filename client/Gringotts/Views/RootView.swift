@@ -39,7 +39,7 @@ struct RootView: View {
                 }
                 .padding()
                 .frame(minHeight: 42)
-                .background(Color.green.opacity(0.8))
+                .background(Color.green)
             }
         }
         .sheet(isPresented: $showSettingsView) {

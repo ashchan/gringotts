@@ -35,6 +35,7 @@
 		1A6BEF09242F783000C3F2CA /* MatchForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEF08242F783000C3F2CA /* MatchForm.swift */; };
 		1A6BEF0B242F7FF100C3F2CA /* MatchRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEF0A242F7FF100C3F2CA /* MatchRow.swift */; };
 		1A6BEF0D242FDA1E00C3F2CA /* ChangeDataForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEF0C242FDA1E00C3F2CA /* ChangeDataForm.swift */; };
+		1A6BEF0F243003AF00C3F2CA /* Buttons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6BEF0E243003AF00C3F2CA /* Buttons.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -68,6 +69,7 @@
 		1A6BEF08242F783000C3F2CA /* MatchForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchForm.swift; sourceTree = "<group>"; };
 		1A6BEF0A242F7FF100C3F2CA /* MatchRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchRow.swift; sourceTree = "<group>"; };
 		1A6BEF0C242FDA1E00C3F2CA /* ChangeDataForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeDataForm.swift; sourceTree = "<group>"; };
+		1A6BEF0E243003AF00C3F2CA /* Buttons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Buttons.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -192,6 +194,7 @@
 			children = (
 				1A6BEEF6242EDBCA00C3F2CA /* EmptyAccountView.swift */,
 				1A6BEEF8242EDE1700C3F2CA /* Logo.swift */,
+				1A6BEF0E243003AF00C3F2CA /* Buttons.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -285,6 +288,7 @@
 				1A1D24F9242DF12E002B230C /* UserDefault.swift in Sources */,
 				1A1D24F6242DD8DD002B230C /* SettingsView.swift in Sources */,
 				1A6BEEFB242EE46A00C3F2CA /* Mist.swift in Sources */,
+				1A6BEF0F243003AF00C3F2CA /* Buttons.swift in Sources */,
 				1A1D2514242EAB73002B230C /* Match.swift in Sources */,
 				1A1D24E5242DAF9B002B230C /* MarketView.swift in Sources */,
 				1A1D24E2242DAAEC002B230C /* AppState.swift in Sources */,

@@ -36,16 +36,20 @@ struct MarketView: View {
 
             VStack {
                 HStack {
+                    Text("Publish. Wait. Holders will offer.")
+                        .foregroundColor(.white)
                     Button(action: {
                         self.publishFormExpanded = true
                     }) {
-                        Text("I need CKB!")
+                        Text("I want some CKB!")
                     }
                     Spacer()
                 }
             }
             .padding()
-            .background(Color.blue)
+            .background(
+                LinearGradient(gradient: Gradient(colors: [.purple, .blue, Color(red: 0, green: 0.87, blue: 1)]), startPoint: .topLeading, endPoint: .bottomTrailing)
+            )
 
             if publishFormExpanded {
                 MatchForm(isPresented: $publishFormExpanded)

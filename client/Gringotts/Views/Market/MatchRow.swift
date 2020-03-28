@@ -17,6 +17,8 @@ struct MatchRow: View {
                 VStack(alignment: .leading) {
                     Text("ID: ") + Text(match.id)
                     Text("Status: ") + Text(match.data.status)
+
+                    Text("Description: ") + Text(match.textMessage)
                 }
 
                 HStack(alignment: .center) {

@@ -11,6 +11,7 @@ struct MatchForm: View {
     @State var overduePeriod = "100"
     @State var amountPerPeriod = "5000000000"
     @State var leaseAmount = "100000000000"
+    @State var text = ""
     @State var coinType: Cell.CoinType = .ckb
     @Binding var isPresented: Bool
 
@@ -31,6 +32,13 @@ struct MatchForm: View {
             }
 
             Section {
+                HStack {
+                    Text("Description")
+                        .font(.caption)
+                        .frame(width: 150, alignment: .trailing)
+                    TextField("Description", text: $text)
+                }
+
                 HStack {
                     Text("Lease Period")
                         .font(.caption)
@@ -95,7 +103,8 @@ struct MatchForm: View {
             leasePeriod: stringToU64Hex(text: leasePeriod),
             overduePeriod: stringToU64Hex(text: overduePeriod),
             amountPerPeriod: stringToU64Hex(text: amountPerPeriod),
-            leaseAmounts: stringToU64Hex(text: leaseAmount)
+            leaseAmounts: stringToU64Hex(text: leaseAmount),
+            text: "0x" + text.data(using: .utf8)!.toHexString()
         )
         store.createMatch(match: data)
 

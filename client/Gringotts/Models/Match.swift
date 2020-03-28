@@ -13,23 +13,30 @@ struct MatchData: Codable {
     let overduePeriod: String
     let amountPerPeriod: String
     let leaseAmounts: String
+    let text: String
 }
 
 struct Match: Decodable, Identifiable {
     let id: String
-    let data: Data
+    let data: InnerData
 
     var coinType: Cell.CoinType { Cell.CoinType.from(coinHash: data.info.coinHash) }
     var status: String { data.status }
+
+    var textMessage: String {
+        let hex = Data(hex: data.text ?? "")
+        return String(data: hex, encoding: .utf8) ?? ""
+    }
 
     var canOffer: Bool { status == "created" }
     var holderCanSign: Bool { status == "matched" }
     var builderCanSign: Bool { status == "sign_matched" }
 
-    struct Data: Decodable {
+    struct InnerData: Decodable {
         let status: String
         let info: Info
         let leaseAmounts: String?
+        let text: String?
         let messagesToSign: [Message]?
 
         struct Info: Decodable {
@@ -43,7 +50,7 @@ struct Match: Decodable, Identifiable {
         }
 
         enum CodingKeys: String, CodingKey {
-            case status, info, leaseAmounts
+            case status, info, leaseAmounts, text
             case messagesToSign = "messagesToSign"
         }
     }
