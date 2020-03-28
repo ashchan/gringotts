@@ -1,11 +1,13 @@
 import express from "express";
 import bodyParser from "body-parser";
 import redis from "redis";
-import { RPC, Reader } from "ckb-js-toolkit";
+import { RPC, Reader, validators, normalizers } from "ckb-js-toolkit";
 import { Nohm } from "nohm";
+import * as blockchain from "ckb-js-toolkit-contrib/src/blockchain";
 import * as nohm from "ckb-js-toolkit-contrib/src/cell_collectors/nohm";
 import * as fs from "fs";
 import {
+  ckbHash,
   deserializeLeaseCellInfo,
   collectCellForFees,
   assembleTransaction,
@@ -29,6 +31,32 @@ const hdelAsync = promisify(client.hdel).bind(client);
 
 app.get("/", async (req, res) => {
   res.send("Hello World!");
+});
+
+app.post("/tip_header", async (req, res) => {
+  res.json({ tip_number: (await rpc.get_tip_header()).number });
+});
+
+app.post("/balances/:pubkey_hash", async (req, res) => {
+  const { pubkey_hash } = req.params;
+  const script = {
+    code_hash:
+      "0x9bd7e06f3ecf4be0f2fcd2188b23f1b9fcc88e5d4b65a8637b17723bbda3cce8",
+    hash_type: "type",
+    args: pubkey_hash
+  };
+  validators.ValidateScript(script);
+  const scriptHash = ckbHash(
+    blockchain.SerializeScript(normalizers.NormalizeScript(script))
+  );
+  const collector = new nohm.Collector(rpc, {
+    [nohm.KEY_LOCK_HASH]: scriptHash.serializeJson()
+  });
+  let capacity = BigInt(0);
+  for await (const cell of collector.collect()) {
+    capacity += BigInt(cell.cell_output.capacity);
+  }
+  res.json({ balance: "0x" + capacity.toString(16) });
 });
 
 app.post("/holders/:holder_pubkey_hash/cells", async (req, res) => {
@@ -118,7 +146,10 @@ app.post(
     cells[0].data = data;
     txTemplate.inputs.push(cells[0]);
     txTemplate.outputs.push(cells[0]);
-    res.json(assembleTransaction(txTemplate));
+    const txData = assembleTransaction(txTemplate);
+    const id = uuidv4();
+    await hsetAsync("TX_TO_SIGN", id, JSON.stringify(txData));
+    res.json({ id, messagesToSign: txData.messagesToSign });
   }
 );
 
@@ -185,7 +216,10 @@ app.post(
         type: null
       }
     });
-    res.json(assembleTransaction(txTemplate));
+    const txData = assembleTransaction(txTemplate);
+    const id = uuidv4();
+    await hsetAsync("TX_TO_SIGN", id, JSON.stringify(txData));
+    res.json({ id, messagesToSign: txData.messagesToSign });
   }
 );
 
@@ -224,16 +258,36 @@ app.post(
         BigInt(txTemplate.outputs[0].cell_output.capacity) +
         BigInt(cells[0].cell_output.capacity)
       ).toString(16);
-    res.json(assembleTransaction(txTemplate));
+    const txData = assembleTransaction(txTemplate);
+    const id = uuidv4();
+    await hsetAsync("TX_TO_SIGN", id, JSON.stringify(txData));
+    res.json({ id, messagesToSign: txData.messagesToSign });
   }
 );
 
 app.post("/send_signed_transaction", async (req, res) => {
-  const { tx, messagesToSign, signatures } = req.body;
+  const { id, signatures } = req.body;
+  const raw = await hgetAsync("TX_TO_SIGN", id);
+  if (!raw) {
+    res.sendStatus(404);
+    return;
+  }
+  const { tx, messagesToSign } = JSON.parse(raw);
   const filledTx = fillSignatures(tx, messagesToSign, signatures);
   const result = await rpc.send_transaction(filledTx, "passthrough");
+  await hdelAsync("TX_TO_SIGN", id);
   res.json({ tx_hash: result });
 });
+
+function filterData(data) {
+  const newData = {};
+  Object.keys(data).forEach(key => {
+    if (key !== "tx") {
+      newData[key] = data[key];
+    }
+  });
+  return newData;
+}
 
 app.post("/matches/create", async (req, res) => {
   const {
@@ -263,15 +317,18 @@ app.post("/matches/create", async (req, res) => {
   };
   const id = uuidv4();
   await hsetAsync("MATCH_LIST", id, JSON.stringify(data));
-  res.json({ id, data });
+  res.json({
+    id,
+    data: filterData(data)
+  });
 });
 
 app.post("/matches/list", async (req, res) => {
-  const matches = await hgetallAsync("MATCH_LIST") || {};
+  const matches = (await hgetallAsync("MATCH_LIST")) || {};
   res.json(
     Object.keys(matches).map(id => {
       const data = JSON.parse(matches[id]);
-      return { id, data };
+      return { id, data: filterData(data) };
     })
   );
 });
@@ -313,7 +370,7 @@ app.post("/matches/:id/match", async (req, res) => {
     nextMessagesToSign: builderMessages
   };
   await hsetAsync("MATCH_LIST", req.params.id, JSON.stringify(newData));
-  res.json({ id: req.params.id, data: newData });
+  res.json({ id: req.params.id, data: filterData(newData) });
 });
 
 app.post("/matches/:id/sign_match", async (req, res) => {
