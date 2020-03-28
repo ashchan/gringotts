@@ -18,9 +18,9 @@ import { argv, exit } from "process";
 import * as fs from "fs";
 import { inspect } from "util";
 
-if (argv.length < 5) {
+if (argv.length < 6) {
   console.log(
-    "Usage: node deploy_contract.js <private key> <contract path> <udt contract path> <true to use dep group>"
+    "Usage: node deploy_contract.js <private key> <contract path> <udt contract path> <secp duel binary path> <true to use dep group>"
   );
   exit(1);
 }
@@ -36,10 +36,15 @@ client.on("connect", async () => {
   const udtBinary = new Reader("0x" + fs.readFileSync(argv[4], "hex"));
   const udtBinaryHash = ckbHash(udtBinary).serializeJson();
 
+  const secpBinary = new Reader("0x" + fs.readFileSync(argv[5], "hex"));
+  const secpBinaryHash = ckbHash(secpBinary).serializeJson();
+
   const capacity =
     BigInt(binary.length()) * BigInt(100000000n) + BigInt(6100000000n);
   const udtCapacity =
     BigInt(udtBinary.length()) * BigInt(100000000n) + BigInt(6100000000n);
+  const secpCapacity =
+    BigInt(secpBinary.length()) * BigInt(100000000n) + BigInt(6100000000n);
   const privateKey = argv[2];
 
   const script = defaultLockScript(publicKeyHash(privateKey));
@@ -50,7 +55,8 @@ client.on("connect", async () => {
     [nohm.KEY_LOCK_HASH]: scriptHash.serializeJson()
   });
   // Always charge 1 CKB for fees.
-  const targetCapacity = BigInt(capacity) + BigInt(udtCapacity) + 100000000n;
+  const targetCapacity =
+    BigInt(capacity) + BigInt(udtCapacity) + BigInt(secpCapacity) + 100000000n;
   let currentCapacity = BigInt(0);
   let currentCells = [];
   for await (const cell of collector.collect()) {
@@ -80,7 +86,15 @@ client.on("connect", async () => {
     },
     data: new Reader(udtBinary).serializeJson()
   };
-  const outputCells = [binaryCell, udtBinaryCell];
+  const secpBinaryCell = {
+    cell_output: {
+      capacity: "0x" + BigInt(secpCapacity).toString(16),
+      lock: script,
+      type: null
+    },
+    data: new Reader(secpBinary).serializeJson()
+  };
+  const outputCells = [binaryCell, udtBinaryCell, secpBinaryCell];
   if (currentCapacity > targetCapacity) {
     outputCells.push({
       cell_output: {
@@ -93,7 +107,7 @@ client.on("connect", async () => {
   }
   const genesis = await rpc.get_block_by_number("0x0");
   let genesisDeps;
-  if (argv[5] === "true") {
+  if (argv[6] === "true") {
     genesisDeps = [
       {
         dep_type: "dep_group",
@@ -149,10 +163,18 @@ client.on("connect", async () => {
           tx_hash: result,
           index: "0x1"
         }
+      },
+      {
+        dep_type: "code",
+        out_point: {
+          tx_hash: result,
+          index: "0x2"
+        }
       }
     ]),
     binary_hash: binaryHash,
-    udt_binary_hash: udtBinaryHash
+    udt_binary_hash: udtBinaryHash,
+    secp_binary_hash: secpBinaryHash
   };
   fs.writeFileSync("cell_deps.json", JSON.stringify(data));
 

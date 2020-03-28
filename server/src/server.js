@@ -85,7 +85,13 @@ app.post("/holders/:holder_pubkey_hash/cells", async (req, res) => {
     }
   }
   cells.sort((a, b) => {
-    return Number(BigInt.asIntN(32, BigInt(b.lease_info.last_payment_time) - BigInt(a.lease_info.last_payment_time)));
+    return Number(
+      BigInt.asIntN(
+        32,
+        BigInt(b.lease_info.last_payment_time) -
+          BigInt(a.lease_info.last_payment_time)
+      )
+    );
   });
   res.json(cells);
 });
@@ -114,7 +120,13 @@ app.post("/builders/:builder_pubkey_hash/cells", async (req, res) => {
     }
   }
   cells.sort((a, b) => {
-    return Number(BigInt.asIntN(32, BigInt(b.lease_info.last_payment_time) - BigInt(a.lease_info.last_payment_time)));
+    return Number(
+      BigInt.asIntN(
+        32,
+        BigInt(b.lease_info.last_payment_time) -
+          BigInt(a.lease_info.last_payment_time)
+      )
+    );
   });
   res.json(cells);
 });
@@ -353,10 +365,12 @@ app.post("/matches/create", async (req, res) => {
 app.post("/matches/list", async (req, res) => {
   const matches = (await hgetallAsync("MATCH_LIST")) || {};
   res.json(
-    Object.keys(matches).sort().map(id => {
-      const data = JSON.parse(matches[id]);
-      return { id, data: filterData(data) };
-    })
+    Object.keys(matches)
+      .sort()
+      .map(id => {
+        const data = JSON.parse(matches[id]);
+        return { id, data: filterData(data) };
+      })
   );
 });
 
