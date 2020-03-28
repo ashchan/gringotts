@@ -51,7 +51,7 @@ extension Client {
         case changeData(cell: Cell, pubkeyHash: String, data: String)
         case pay(cell: Cell, pubkeyHash: String)
         case claim(cell: Cell, pubkeyHash: String)
-        case sendSignedTransaction(tx: SigningTx)
+        case sendSignedTransaction(message: SignedMessage)
 
         case createMatch(data: MatchData)
         case listMatches
@@ -96,8 +96,8 @@ extension Client {
             switch self {
             case .changeData(_, _, let data):
                 toEncode = ["data": data]
-            case .sendSignedTransaction(let tx):
-                toEncode = tx
+            case .sendSignedTransaction(let signedMessage):
+                toEncode = signedMessage
             case .createMatch(let data):
                 toEncode = data
             case .match(_, let pubkeyHash):

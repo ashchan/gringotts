@@ -149,9 +149,9 @@
 			isa = PBXGroup;
 			children = (
 				1A1D24EB242DD014002B230C /* Cell.swift */,
+				1A1D2517242EB277002B230C /* Message.swift */,
 				1A1D2513242EAB73002B230C /* Match.swift */,
 				1A1D2515242EACC2002B230C /* Transaction.swift */,
-				1A1D2517242EB277002B230C /* Message.swift */,
 				1A6BEEFA242EE46A00C3F2CA /* Mist.swift */,
 			);
 			path = Models;
