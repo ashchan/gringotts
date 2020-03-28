@@ -50,9 +50,12 @@ int main() {
     return ERROR_ENCODING;
   }
 
+  mol_seg_t code_hash_seg = MolReader_Script_get_code_hash(&script_seg);
+  mol_seg_t hash_type_seg = MolReader_Script_get_hash_type(&script_seg);
+
   mol_seg_t args_seg = MolReader_Script_get_args(&script_seg);
   mol_seg_t args_bytes_seg = MolReader_Bytes_raw_bytes(&args_seg);
-  if (args_bytes_seg.size != BLAKE160_SIZE) {
+  if (args_bytes_seg.size != 104) {
     return ERROR_ARGUMENTS_LEN;
   }
 
@@ -170,9 +173,148 @@ int main() {
   blake2b_update(&blake2b_ctx, temp, pubkey_size);
   blake2b_final(&blake2b_ctx, temp, BLAKE2B_BLOCK_SIZE);
 
-  if (memcmp(args_bytes_seg.ptr, temp, BLAKE160_SIZE) != 0) {
+  if (memcmp(args_bytes_seg.ptr, temp, BLAKE160_SIZE) == 0) {
+    /*
+     * HOLDER pubkey hash, ensure that the cell is overdue:
+     * last_payment_time + lease_period + overdue_period >= tip_number
+     * Since value for current cell should be used to store tip_number.
+     */
+    ckb_debug("Claim");
+    return 0;
+  } else if (memcmp(&args_bytes_seg.ptr[BLAKE160_SIZE], temp, BLAKE160_SIZE) == 0) {
+    /* BUILDER pubkey hash, check change_data or pay logic */
+    i = 0;
+    unsigned char output_script[SCRIPT_SIZE];
+    mol_seg_t output_script_seg;
+    size_t matched_index = SIZE_MAX;
+    while (1) {
+      len = SCRIPT_SIZE;
+      ret = ckb_load_cell_by_field(output_script, &len, 0, i, CKB_SOURCE_OUTPUT,
+                                   CKB_CELL_FIELD_LOCK);
+      if (ret != CKB_SUCCESS) {
+        return ret;
+      }
+      i++;
+      output_script_seg.ptr = output_script;
+      output_script_seg.size = len;
+
+      if (MolReader_Script_verify(&output_script_seg, false) != MOL_OK) {
+        return ERROR_ENCODING;
+      }
+      mol_seg_t output_code_hash_seg = MolReader_Script_get_code_hash(&output_script_seg);
+      mol_seg_t output_hash_type_seg = MolReader_Script_get_hash_type(&output_script_seg);
+
+      if ((memcmp(code_hash_seg.ptr, output_code_hash_seg.ptr, 32) == 0) &&
+          (output_hash_type_seg.ptr[0] == hash_type_seg.ptr[0])) {
+        matched_index = i - 1;
+        break;
+      }
+    }
+    while (1) {
+      unsigned char temp_script[SCRIPT_SIZE];
+      len = SCRIPT_SIZE;
+      ret = ckb_load_cell_by_field(temp_script, &len, 0, i, CKB_SOURCE_OUTPUT,
+                                   CKB_CELL_FIELD_LOCK);
+      if (ret == CKB_INDEX_OUT_OF_BOUND) {
+        break;
+      }
+      if (ret != CKB_SUCCESS) {
+        return ret;
+      }
+      i++;
+      mol_seg_t temp_script_seg;
+      temp_script_seg.ptr = temp_script;
+      temp_script_seg.size = len;
+
+      if (MolReader_Script_verify(&temp_script_seg, false) != MOL_OK) {
+        return ERROR_ENCODING;
+      }
+      mol_seg_t temp_code_hash_seg = MolReader_Script_get_code_hash(&temp_script_seg);
+      mol_seg_t temp_hash_type_seg = MolReader_Script_get_hash_type(&temp_script_seg);
+
+      if ((memcmp(code_hash_seg.ptr, temp_code_hash_seg.ptr, 32) == 0) &&
+          (temp_hash_type_seg.ptr[0] == hash_type_seg.ptr[0])) {
+        // 2 lease cells in one transaction, for simplicity, we reject it here.
+        return -101;
+      }
+    }
+
+    /*
+     * First, ensures that the same capacity and type script are used
+     * for the input and output cells.
+     */
+    uint64_t input_capacity = 0, output_capacity = 0;
+    len = 8;
+    ret = ckb_load_cell_by_field((uint8_t*) &input_capacity, &len, 0, 0,
+                                 CKB_SOURCE_GROUP_INPUT, CKB_CELL_FIELD_CAPACITY);
+    if (ret != CKB_SUCCESS) {
+      return ret;
+    }
+    len = 8;
+    ret = ckb_load_cell_by_field((uint8_t*) &output_capacity, &len, 0, matched_index,
+                                 CKB_SOURCE_OUTPUT, CKB_CELL_FIELD_CAPACITY);
+    if (ret != CKB_SUCCESS) {
+      return ret;
+    }
+    if (input_capacity != output_capacity) {
+      return -102;
+    }
+    unsigned char input_type_hash[32];
+    int has_input_type = 0;
+    len = 32;
+    ret = ckb_load_cell_by_field(input_type_hash, &len, 0, 0,
+                                 CKB_SOURCE_GROUP_INPUT, CKB_CELL_FIELD_TYPE_HASH);
+    if (ret != CKB_ITEM_MISSING && ret != CKB_SUCCESS) {
+      return ret;
+    }
+    has_input_type = ret == CKB_SUCCESS;
+    unsigned char output_type_hash[32];
+    int has_output_type = 0;
+    len = 32;
+    ret = ckb_load_cell_by_field(output_type_hash, &len, 0, 0,
+                                 CKB_SOURCE_OUTPUT, CKB_CELL_FIELD_TYPE_HASH);
+    if (ret != CKB_ITEM_MISSING && ret != CKB_SUCCESS) {
+      return ret;
+    }
+    has_output_type = ret == CKB_SUCCESS;
+    if (has_input_type != has_output_type) {
+      return -103;
+    }
+    if (has_input_type) {
+      if (memcmp(input_type_hash, output_type_hash, 32) != 0) {
+        return -104;
+      }
+    }
+
+    mol_seg_t output_args_seg = MolReader_Script_get_args(&output_script_seg);
+    mol_seg_t output_args_bytes_seg = MolReader_Bytes_raw_bytes(&output_args_seg);
+    if (output_args_bytes_seg.size != 104) {
+      return ERROR_ARGUMENTS_LEN;
+    }
+    if (memcmp(output_args_bytes_seg.ptr, args_bytes_seg.ptr, 104) == 0) {
+      /*
+       * Change data, no additional logic is required in the checking.
+       */
+      ckb_debug("Change data");
+    } else {
+      /*
+       * Pay, ensures that only last_payment_time is updated, and it is updated
+       * to the correct value
+       */
+      if (memcmp(output_args_bytes_seg.ptr, args_bytes_seg.ptr, 88) != 0) {
+        return -105;
+      }
+      if (memcmp(&output_args_bytes_seg.ptr[96], &args_bytes_seg.ptr[96], 8) != 0) {
+        return -106;
+      }
+      /*
+       * TODO: ensure last_payment_time is set the same as since value in the
+       * input cell.
+       */
+      ckb_debug("Pay");
+    }
+    return 0;
+  } else {
     return ERROR_PUBKEY_BLAKE160_HASH;
   }
-
-  return 0;
 }
