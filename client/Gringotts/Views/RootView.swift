@@ -14,12 +14,10 @@ struct RootView: View {
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
             HStack {
-                if store.state.viewTab.selected == .borrower {
-                    BorrowerView()
-                } else if store.state.viewTab.selected == .market {
+                if store.state.viewTab.selected == .market {
                     MarketView()
                 } else {
-                    LenderView()
+                    CellsView()
                 }
             }
             Text("#\(store.state.tipNumber)")

@@ -10,7 +10,7 @@ struct EmptyAccountView: View {
     var prompt: String = "You haven't configured account yet."
 
     var body: some View {
-        HStack() {
+        VStack() {
             Text(prompt)
                 .font(.subheadline)
 

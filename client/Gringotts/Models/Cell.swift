@@ -11,6 +11,34 @@ struct Cell: Hashable, Codable, Identifiable {
     let data: String?
 
     var id: String { outPoint.txHash + outPoint.index }
+
+    func status(tipNumber: UInt64) -> Status {
+        if lastPaymentTime + leasePeriod < tipNumber {
+            return .normal
+        }
+
+        if lastPaymentTime + leasePeriod >= tipNumber && lastPaymentTime + leasePeriod + overduePeriod < tipNumber {
+            return .due
+        }
+
+        return .overdue
+    }
+
+    var lastPaymentTime: UInt64 { leaseInfo.lastPaymentTime.numberFromHex }
+    var leasePeriod: UInt64 { leaseInfo.leasePeriod.numberFromHex }
+    var overduePeriod: UInt64 { leaseInfo.overduePeriod.numberFromHex }
+}
+
+extension Cell {
+    enum Status: String {
+        case normal
+        case due
+        case overdue
+
+        var description: String {
+            return rawValue.capitalized
+        }
+    }
 }
 
 struct LeaseInfo: Hashable, Codable {
