@@ -290,7 +290,7 @@ int main() {
     unsigned char output_type_hash[32];
     int has_output_type = 0;
     len = 32;
-    ret = ckb_load_cell_by_field(output_type_hash, &len, 0, 0,
+    ret = ckb_load_cell_by_field(output_type_hash, &len, 0, matched_index,
                                  CKB_SOURCE_OUTPUT, CKB_CELL_FIELD_TYPE_HASH);
     if (ret != CKB_ITEM_MISSING && ret != CKB_SUCCESS) {
       return ret;

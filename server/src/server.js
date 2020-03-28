@@ -166,7 +166,8 @@ app.post(
         [nohm.KEY_OUT_POINT]: nohm.serializeOutPoint({ tx_hash, index })
       },
       {
-        skipCellWithContent: false
+        skipCellWithContent: false,
+        loadData: true
       }
     );
     const cells = [];
@@ -290,6 +291,7 @@ app.post("/send_signed_transaction", async (req, res) => {
   try {
     const { tx, messagesToSign } = JSON.parse(raw);
     const filledTx = fillSignatures(tx, messagesToSign, signatures);
+    fs.writeFileSync("debug.json", JSON.stringify(filledTx));
     const result = await rpc.send_transaction(filledTx, "passthrough");
     await hdelAsync("TX_TO_SIGN", id);
     res.json({ tx_hash: result });

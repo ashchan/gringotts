@@ -18,8 +18,10 @@ import { argv, exit } from "process";
 import * as fs from "fs";
 import { inspect } from "util";
 
-if (argv.length != 4) {
-  console.log("Usage: node deploy_contract.js <private key> <contract path>");
+if (argv.length < 5) {
+  console.log(
+    "Usage: node deploy_contract.js <private key> <contract path> <udt contract path> <true to use dep group>"
+  );
   exit(1);
 }
 
@@ -30,8 +32,14 @@ client.on("connect", async () => {
 
   const binary = new Reader("0x" + fs.readFileSync(argv[3], "hex"));
   const binaryHash = ckbHash(binary).serializeJson();
+
+  const udtBinary = new Reader("0x" + fs.readFileSync(argv[4], "hex"));
+  const udtBinaryHash = ckbHash(udtBinary).serializeJson();
+
   const capacity =
     BigInt(binary.length()) * BigInt(100000000n) + BigInt(6100000000n);
+  const udtCapacity =
+    BigInt(udtBinary.length()) * BigInt(100000000n) + BigInt(6100000000n);
   const privateKey = argv[2];
 
   const script = defaultLockScript(publicKeyHash(privateKey));
@@ -42,7 +50,7 @@ client.on("connect", async () => {
     [nohm.KEY_LOCK_HASH]: scriptHash.serializeJson()
   });
   // Always charge 1 CKB for fees.
-  const targetCapacity = BigInt(capacity) + 100000000n;
+  const targetCapacity = BigInt(capacity) + BigInt(udtCapacity) + 100000000n;
   let currentCapacity = BigInt(0);
   let currentCells = [];
   for await (const cell of collector.collect()) {
@@ -64,7 +72,15 @@ client.on("connect", async () => {
     },
     data: new Reader(binary).serializeJson()
   };
-  const outputCells = [binaryCell];
+  const udtBinaryCell = {
+    cell_output: {
+      capacity: "0x" + BigInt(udtCapacity).toString(16),
+      lock: script,
+      type: null
+    },
+    data: new Reader(udtBinary).serializeJson()
+  };
+  const outputCells = [binaryCell, udtBinaryCell];
   if (currentCapacity > targetCapacity) {
     outputCells.push({
       cell_output: {
@@ -76,15 +92,35 @@ client.on("connect", async () => {
     });
   }
   const genesis = await rpc.get_block_by_number("0x0");
-  let genesisDeps = [
-    {
-      dep_type: "dep_group",
-      out_point: {
-        tx_hash: genesis.transactions[1].hash,
-        index: "0x0"
+  let genesisDeps;
+  if (argv[5] === "true") {
+    genesisDeps = [
+      {
+        dep_type: "dep_group",
+        out_point: {
+          tx_hash: genesis.transactions[1].hash,
+          index: "0x0"
+        }
       }
-    }
-  ];
+    ];
+  } else {
+    genesisDeps = [
+      {
+        dep_type: "code",
+        out_point: {
+          tx_hash: genesis.transactions[0].hash,
+          index: "0x1"
+        }
+      },
+      {
+        dep_type: "code",
+        out_point: {
+          tx_hash: genesis.transactions[0].hash,
+          index: "0x3"
+        }
+      }
+    ];
+  }
   const txTemplate = {
     inputs: currentCells,
     outputs: outputCells,
@@ -106,9 +142,17 @@ client.on("connect", async () => {
           tx_hash: result,
           index: "0x0"
         }
+      },
+      {
+        dep_type: "code",
+        out_point: {
+          tx_hash: result,
+          index: "0x1"
+        }
       }
     ]),
-    binary_hash: binaryHash
+    binary_hash: binaryHash,
+    udt_binary_hash: udtBinaryHash
   };
   fs.writeFileSync("cell_deps.json", JSON.stringify(data));
 

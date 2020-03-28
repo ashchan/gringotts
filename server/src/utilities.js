@@ -248,14 +248,14 @@ export function defaultLockScript(pubkeyHash) {
 
 export function unpackUdtAmount(data) {
   const view = new DataView(new Reader(data).toArrayBuffer());
-  const a = view.getBitUint64(0, true);
-  const b = view.getBitUint64(0, true);
-  return (a << 64) | b;
+  const a = view.getBigUint64(0, true);
+  const b = view.getBigUint64(8, true);
+  return (b << 64n) | a;
 }
 
 export function packUdtAmount(amount) {
   const a = amount & BigInt("0xFFFFFFFFFFFFFFFF");
-  const b = (amount >> 64) & BigInt("0xFFFFFFFFFFFFFFFF");
+  const b = (amount >> 64n) & BigInt("0xFFFFFFFFFFFFFFFF");
   const view = new DataView(new ArrayBuffer(16));
   view.setBigUint64(0, a, true);
   view.setBigUint64(8, b, true);
@@ -305,7 +305,7 @@ export async function prepareUdtPayment(
         cell_output: {
           capacity: "0x" + 14200000000n.toString(16),
           lock: defaultLockScript(targetPubkeyHash),
-          type: cells[0].cell_output.type
+          type: currentCells[0].cell_output.type
         },
         data: packUdtAmount(amount).serializeJson()
       },
@@ -314,7 +314,7 @@ export async function prepareUdtPayment(
           capacity:
             "0x" + (currentCapacity - 14200000000n - 100000000n).toString(16),
           lock: script,
-          type: cells[0].cell_output.type
+          type: currentCells[0].cell_output.type
         },
         data: packUdtAmount(currentAmount - amount).serializeJson()
       }
