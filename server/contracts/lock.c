@@ -176,10 +176,27 @@ int main() {
   if (memcmp(args_bytes_seg.ptr, temp, BLAKE160_SIZE) == 0) {
     /*
      * HOLDER pubkey hash, ensure that the cell is overdue:
-     * last_payment_time + lease_period + overdue_period >= tip_number
+     * last_payment_time + lease_period + overdue_period < tip_number
      * Since value for current cell should be used to store tip_number.
      */
-    ckb_debug("Claim");
+    uint64_t lease_period = *((uint64_t*) (&args_bytes_seg.ptr[72]));
+    uint64_t overdue_period = *((uint64_t*) (&args_bytes_seg.ptr[80]));
+    uint64_t last_payment_time = *((uint64_t*) (&args_bytes_seg.ptr[88]));
+
+    uint64_t since = 0;
+    len = 8;
+    ret = ckb_load_input_by_field((uint8_t*) &since, &len, 0, 0,
+                                  CKB_SOURCE_GROUP_INPUT, CKB_INPUT_FIELD_SINCE);
+    if (ret != CKB_SUCCESS) {
+      return ret;
+    }
+    if (since >> 56 != 0) {
+      return -99;
+    }
+    if (lease_period + overdue_period + last_payment_time >= since) {
+      return -100;
+    }
+    ckb_debug("Claim success");
     return 0;
   } else if (memcmp(&args_bytes_seg.ptr[BLAKE160_SIZE], temp, BLAKE160_SIZE) == 0) {
     /* BUILDER pubkey hash, check change_data or pay logic */
@@ -295,7 +312,7 @@ int main() {
       /*
        * Change data, no additional logic is required in the checking.
        */
-      ckb_debug("Change data");
+      ckb_debug("Change data success");
     } else {
       /*
        * Pay, ensures that only last_payment_time is updated, and it is updated
@@ -308,10 +325,73 @@ int main() {
         return -106;
       }
       /*
-       * TODO: ensure last_payment_time is set the same as since value in the
+       * Ensures last_payment_time is set to the same as since value in the
        * input cell.
        */
-      ckb_debug("Pay");
+      uint64_t last_payment_time = *((uint64_t*) (&output_args_bytes_seg.ptr[88]));
+      uint64_t since = 0;
+      len = 8;
+      ret = ckb_load_input_by_field((uint8_t*) &since, &len, 0, 0,
+                                    CKB_SOURCE_GROUP_INPUT, CKB_INPUT_FIELD_SINCE);
+      if (ret != CKB_SUCCESS) {
+        return ret;
+      }
+      if (since >> 56 != 0) {
+        return -107;
+      }
+      if (since != last_payment_time) {
+        return -108;
+      }
+      /*
+       * TODO: check that correct amount has been paid to the holder
+       */
+      uint64_t amount_per_period = *((uint64_t*) (&args_bytes_seg.ptr[96]));
+      i = 0;
+      while (1) {
+        unsigned char temp_script[SCRIPT_SIZE];
+        len = SCRIPT_SIZE;
+        ret = ckb_load_cell_by_field(temp_script, &len, 0, i, CKB_SOURCE_OUTPUT,
+                                     CKB_CELL_FIELD_LOCK);
+        if (ret != CKB_SUCCESS) {
+          return ret;
+        }
+        mol_seg_t temp_script_seg;
+        temp_script_seg.ptr = temp_script;
+        temp_script_seg.size = len;
+
+        if (MolReader_Script_verify(&temp_script_seg, false) != MOL_OK) {
+          return ERROR_ENCODING;
+        }
+        mol_seg_t temp_code_hash_seg = MolReader_Script_get_code_hash(&temp_script_seg);
+        mol_seg_t temp_hash_type_seg = MolReader_Script_get_hash_type(&temp_script_seg);
+        mol_seg_t temp_args_seg = MolReader_Script_get_args(&temp_script_seg);
+        mol_seg_t temp_args_bytes_seg = MolReader_Bytes_raw_bytes(&temp_args_seg);
+
+        const char DEFAULT_LOCK[32] = {
+          0x9b, 0xd7, 0xe0, 0x6f, 0x3e, 0xcf, 0x4b, 0xe0,
+          0xf2, 0xfc, 0xd2, 0x18, 0x8b, 0x23, 0xf1, 0xb9,
+          0xfc, 0xc8, 0x8e, 0x5d, 0x4b, 0x65, 0xa8, 0x63,
+          0x7b, 0x17, 0x72, 0x3b, 0xbd, 0xa3, 0xcc, 0xe8
+        };
+        if ((memcmp(temp_code_hash_seg.ptr, DEFAULT_LOCK, 32) == 0) &&
+            (temp_hash_type_seg.ptr[0] == 1) &&
+            (temp_args_bytes_seg.size == 20) &&
+            (memcmp(temp_args_bytes_seg.ptr, output_args_bytes_seg.ptr, 20) == 0)) {
+          break;
+        }
+        i++;
+      }
+      uint64_t pay_capacity = 0;
+      len = 8;
+      ret = ckb_load_cell_by_field((uint8_t*) &pay_capacity, &len, 0, i,
+                                   CKB_SOURCE_OUTPUT, CKB_CELL_FIELD_CAPACITY);
+      if (ret != CKB_SUCCESS) {
+        return ret;
+      }
+      if (pay_capacity != amount_per_period) {
+        return -109;
+      }
+      ckb_debug("Pay success");
     }
     return 0;
   } else {

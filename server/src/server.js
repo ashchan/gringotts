@@ -190,7 +190,9 @@ app.post(
       builder_pubkey_hash,
       payAmount + 100000000n
     );
-    leaseCellInfo.last_payment_time = (await rpc.get_tip_header()).number;
+    const tipNumber = (await rpc.get_tip_header()).number;
+    leaseCellInfo.last_payment_time = tipNumber;
+    cell.since = tipNumber;
     txTemplate.inputs.push(cell);
     txTemplate.outputs.push({
       cell_output: {
@@ -251,6 +253,7 @@ app.post(
       return;
     }
     const txTemplate = await collectCellForFees(rpc, holder_pubkey_hash);
+    cells[0].since = (await rpc.get_tip_header()).number;
     txTemplate.inputs.push(cells[0]);
     txTemplate.outputs[0].cell_output.capacity =
       "0x" +
@@ -272,11 +275,15 @@ app.post("/send_signed_transaction", async (req, res) => {
     res.sendStatus(404);
     return;
   }
-  const { tx, messagesToSign } = JSON.parse(raw);
-  const filledTx = fillSignatures(tx, messagesToSign, signatures);
-  const result = await rpc.send_transaction(filledTx, "passthrough");
-  await hdelAsync("TX_TO_SIGN", id);
-  res.json({ tx_hash: result });
+  try {
+    const { tx, messagesToSign } = JSON.parse(raw);
+    const filledTx = fillSignatures(tx, messagesToSign, signatures);
+    const result = await rpc.send_transaction(filledTx, "passthrough");
+    await hdelAsync("TX_TO_SIGN", id);
+    res.json({ tx_hash: result });
+  } catch (e) {
+    res.status(422).json({ error: e.message });
+  }
 });
 
 function filterData(data) {

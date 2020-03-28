@@ -141,7 +141,7 @@ export function assembleTransaction(txTemplate) {
     inputs: txTemplate.inputs.map(i => {
       return {
         previous_output: i.out_point,
-        since: "0x0"
+        since: i.since || "0x0"
       };
     }),
     outputs: txTemplate.outputs.map(o => o.cell_output),
