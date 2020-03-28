@@ -15,3 +15,5 @@ This dapp leverages 2 smart contracts:
 The main contract uses dynamic linking techniques to load the secp contract and runs the signature verification code. Hence you can notice the main contract is quite small (7.9K in current example).
 
 The secp contract is an interesting one: it can work as a dynamic linked library as shown above; it can also be used as a standalone executable contract by itself, in which case it will perform the secp256k1-blake2b-sighash-all validation just like the default lock.
+
+In our test, the dynamic linking only consumes 2375 more cycles than the version where we combine all the logic in one giant contract. In exchange, our current solution enables multiple smart contracts to share the same secp256k1 verification code on chain, the smart contracts, can then focus on and only include dapp specific logic.
