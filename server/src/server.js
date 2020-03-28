@@ -335,8 +335,10 @@ app.post("/matches/create", async (req, res) => {
     lease_period,
     overdue_period,
     amount_per_period,
-    lease_amounts
+    lease_amounts,
+    text
   } = req.body;
+  text = text || "";
   const txTemplate = await collectCellForFees(
     rpc,
     builder_pubkey_hash,
@@ -351,6 +353,7 @@ app.post("/matches/create", async (req, res) => {
       overdue_period,
       amount_per_period
     },
+    text,
     lease_amounts,
     tx: txTemplate
   };
@@ -407,6 +410,7 @@ app.post("/matches/:id/match", async (req, res) => {
     status: "matched",
     info: parsed.info,
     tx,
+    text: oldData.text,
     messagesToSign: holderMessages,
     nextMessagesToSign: builderMessages
   };
@@ -431,6 +435,7 @@ app.post("/matches/:id/sign_match", async (req, res) => {
     status: "sign_matched",
     info: parsed.info,
     tx: filledTx,
+    text: oldData.text,
     messagesToSign: parsed.nextMessagesToSign
   };
   await hsetAsync("MATCH_LIST", req.params.id, JSON.stringify(newData));
@@ -452,6 +457,17 @@ app.post("/matches/:id/sign_confirm", async (req, res) => {
   const filledTx = fillSignatures(parsed.tx, parsed.messagesToSign, signatures);
   const result = await rpc.send_transaction(filledTx, "passthrough");
   await hdelAsync("MATCH_LIST", req.params.id);
+  /* Clear all other match from the same builder & holder to avoid duplicate input issue */
+  const matches = (await hgetallAsync("MATCH_LIST")) || {};
+  const ids = Object.keys(matches);
+  for (let i = 0; i < ids.length; i++) {
+    const id = ids[i];
+    const value = JSON.parse(matches[id]);
+    if (value.builder_pubkey_hash === oldData.builder_pubkey_hash ||
+        value.holder_pubkey_hash === oldData.holder_pubkey_hash) {
+      await hdelAsync("MATCH_LIST", req.params.id);
+    }
+  }
   res.json({ tx_hash: result });
 });
 
