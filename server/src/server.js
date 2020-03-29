@@ -389,8 +389,21 @@ app.post("/matches/:id/match", async (req, res) => {
   }
   const { holder_pubkey_hash } = req.body;
   parsed.info.holder_pubkey_hash = holder_pubkey_hash;
-  parsed.info.last_payment_time = (await rpc.get_tip_header()).number;
+  const tipNumber = (await rpc.get_tip_header()).number;
+  parsed.info.last_payment_time = tipNumber;
   validateLeaseCellInfo(parsed.info);
+  const leaseCell = {
+    cell_output: {
+      capacity: parsed.lease_amounts,
+      lock: {
+        code_hash: JSON.parse(fs.readFileSync("./cell_deps.json")).binary_hash,
+        hash_type: "data",
+        args: new Reader(serializeLeaseCellInfo(parsed.info)).serializeJson()
+      },
+      type: null
+    },
+    data: "0x"
+  };
   const txTemplate = await collectCellForFees(
     rpc,
     holder_pubkey_hash,
@@ -398,6 +411,7 @@ app.post("/matches/:id/match", async (req, res) => {
   );
   txTemplate.inputs = txTemplate.inputs.concat(parsed.tx.inputs);
   txTemplate.outputs = txTemplate.outputs.concat(parsed.tx.outputs);
+  txTemplate.outputs.push(leaseCell);
   const { tx, messagesToSign } = assembleTransaction(txTemplate);
   const holderMessages = messagesToSign.filter(m => {
     return m.lock.args === parsed.info.holder_pubkey_hash;
@@ -409,12 +423,11 @@ app.post("/matches/:id/match", async (req, res) => {
     status: "matched",
     info: parsed.info,
     tx,
-    text: oldData.text,
+    text: parsed.text,
     messagesToSign: holderMessages,
     nextMessagesToSign: builderMessages
   };
   await hsetAsync("MATCH_LIST", req.params.id, JSON.stringify(newData));
-  console.log("Match: " + filterData(newData));
   res.json({ id: req.params.id, data: filterData(newData) });
 });
 
@@ -435,11 +448,10 @@ app.post("/matches/:id/sign_match", async (req, res) => {
     status: "sign_matched",
     info: parsed.info,
     tx: filledTx,
-    text: oldData.text,
+    text: parsed.text,
     messagesToSign: parsed.nextMessagesToSign
   };
   await hsetAsync("MATCH_LIST", req.params.id, JSON.stringify(newData));
-  console.log("Sign Match: " + filterData(newData));
   res.json({ id: req.params.id, data: newData });
 });
 
@@ -457,7 +469,7 @@ app.post("/matches/:id/sign_confirm", async (req, res) => {
   const { signatures } = req.body;
   const filledTx = fillSignatures(parsed.tx, parsed.messagesToSign, signatures);
   const result = await rpc.send_transaction(filledTx, "passthrough");
-  console.log("TX Hash: ", result);
+  console.log("Match TX Hash: ", result);
   await hdelAsync("MATCH_LIST", req.params.id);
   /* Clear all other match from the same builder & holder to avoid duplicate input issue */
   const matches = (await hgetallAsync("MATCH_LIST")) || {};
