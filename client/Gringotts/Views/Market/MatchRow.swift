@@ -15,6 +15,8 @@ struct MatchRow: View {
         VStack {
             HStack(alignment: .center) {
                 VStack(alignment: .leading) {
+                    Text(match.data.info.amountPerPeriod)
+                        .font(.subheadline)
                     Text("ID: ") + Text(match.id)
                     Text("Status: ") + Text(match.data.status)
 

@@ -34,22 +34,25 @@ struct MarketView: View {
                 self.refreshIfNecessary()
             }
 
-            VStack {
-                HStack {
-                    Text("Publish. Wait. Holders will offer.")
-                        .foregroundColor(.white)
-                    Button(action: {
-                        self.publishFormExpanded = true
-                    }) {
-                        Text("I want some CKB!")
+
+            if showPublishBanner {
+                VStack {
+                    HStack {
+                        Text("Publish. Wait. Holders will offer.")
+                            .foregroundColor(.white)
+                        Button(action: {
+                            self.publishFormExpanded = true
+                        }) {
+                            Text("I want some CKB!")
+                        }
+                        Spacer()
                     }
-                    Spacer()
                 }
+                .padding()
+                .background(
+                    LinearGradient(gradient: Gradient(colors: [.purple, .blue, Color(red: 0, green: 0.87, blue: 1)]), startPoint: .topLeading, endPoint: .bottomTrailing)
+                )
             }
-            .padding()
-            .background(
-                LinearGradient(gradient: Gradient(colors: [.purple, .blue, Color(red: 0, green: 0.87, blue: 1)]), startPoint: .topLeading, endPoint: .bottomTrailing)
-            )
 
             if publishFormExpanded {
                 MatchForm(isPresented: $publishFormExpanded)
@@ -60,6 +63,10 @@ struct MarketView: View {
 }
 
 extension MarketView {
+    var showPublishBanner: Bool {
+        !store.state.settings.builderAddress.isEmpty
+    }
+
     func refresh() {
         store.loadMatches()
     }

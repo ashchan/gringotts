@@ -23,6 +23,13 @@ struct Match: Decodable, Identifiable {
     var coinType: Cell.CoinType { Cell.CoinType.from(coinHash: data.info.coinHash) }
     var status: String { data.status }
 
+    var amountPerPeriod: String {
+        if coinType == .ckb {
+            return "\(data.info.amountPerPeriod.numberFromHex / 100_000_000) CKB"
+        }
+        return data.info.amountPerPeriod.numberFromHex.description + " UDT"
+    }
+
     var textMessage: String {
         let hex = Data(hex: data.text ?? "")
         return String(data: hex, encoding: .utf8) ?? ""
