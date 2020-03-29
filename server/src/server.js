@@ -424,6 +424,7 @@ app.post("/matches/:id/match", async (req, res) => {
     info: parsed.info,
     tx,
     text: parsed.text,
+    lease_amounts: parsed.lease_amounts,
     messagesToSign: holderMessages,
     nextMessagesToSign: builderMessages
   };
@@ -449,6 +450,7 @@ app.post("/matches/:id/sign_match", async (req, res) => {
     info: parsed.info,
     tx: filledTx,
     text: parsed.text,
+    lease_amounts: parsed.lease_amounts,
     messagesToSign: parsed.nextMessagesToSign
   };
   await hsetAsync("MATCH_LIST", req.params.id, JSON.stringify(newData));
