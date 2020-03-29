@@ -20,7 +20,10 @@ struct MatchRow: View {
                             .resizable()
                             .frame(width: 20, height: 20)
 
-                        Text(match.amountPerPeriod)
+                        Text(match.leaseAmounts)
+                            .font(.subheadline)
+
+                        Text("(\(match.amountPerPeriod))")
                             .font(.subheadline)
                         Spacer()
                     }

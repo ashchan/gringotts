@@ -30,6 +30,13 @@ struct Match: Decodable, Identifiable {
         return data.info.amountPerPeriod.numberFromHex.description + " UDT"
     }
 
+    var leaseAmounts: String {
+        if coinType == .ckb {
+            return "\((data.leaseAmounts ?? "0x0").numberFromHex / 100_000_000) CKB"
+        }
+        return (data.leaseAmounts ?? "0x0").numberFromHex.description + " UDT"
+    }
+
     var textMessage: String {
         let hex = Data(hex: data.text ?? "")
         return String(data: hex, encoding: .utf8) ?? ""
