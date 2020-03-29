@@ -414,6 +414,7 @@ app.post("/matches/:id/match", async (req, res) => {
     nextMessagesToSign: builderMessages
   };
   await hsetAsync("MATCH_LIST", req.params.id, JSON.stringify(newData));
+  console.log("Match: " + filterData(newData));
   res.json({ id: req.params.id, data: filterData(newData) });
 });
 
@@ -438,6 +439,7 @@ app.post("/matches/:id/sign_match", async (req, res) => {
     messagesToSign: parsed.nextMessagesToSign
   };
   await hsetAsync("MATCH_LIST", req.params.id, JSON.stringify(newData));
+  console.log("Sign Match: " + filterData(newData));
   res.json({ id: req.params.id, data: newData });
 });
 
@@ -455,6 +457,7 @@ app.post("/matches/:id/sign_confirm", async (req, res) => {
   const { signatures } = req.body;
   const filledTx = fillSignatures(parsed.tx, parsed.messagesToSign, signatures);
   const result = await rpc.send_transaction(filledTx, "passthrough");
+  console.log("TX Hash: ", result);
   await hdelAsync("MATCH_LIST", req.params.id);
   /* Clear all other match from the same builder & holder to avoid duplicate input issue */
   const matches = (await hgetallAsync("MATCH_LIST")) || {};
