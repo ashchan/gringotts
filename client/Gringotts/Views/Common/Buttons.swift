@@ -50,6 +50,7 @@ extension Image {
         self
             .resizable()
             .renderingMode(.template)
+            .scaledToFit()
             .frame(width: 24, height: 24)
             .padding(8)
             .overlay(

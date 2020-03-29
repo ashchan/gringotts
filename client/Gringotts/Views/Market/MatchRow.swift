@@ -15,22 +15,19 @@ struct MatchRow: View {
         VStack {
             HStack(alignment: .center) {
                 VStack(alignment: .leading) {
-                    Text(match.data.info.amountPerPeriod)
-                        .font(.subheadline)
+                    HStack {
+                        Image(match.coinType.icon)
+                            .resizable()
+                            .frame(width: 20, height: 20)
+
+                        Text(match.amountPerPeriod)
+                            .font(.subheadline)
+                        Spacer()
+                    }
                     Text("ID: ") + Text(match.id)
                     Text("Status: ") + Text(match.data.status)
 
                     Text("Description: ") + Text(match.textMessage)
-                }
-
-                HStack(alignment: .center) {
-                    Spacer()
-                    VStack(alignment: .trailing) {
-                        Image(match.coinType.icon)
-                            .resizable()
-                            .frame(width: 20, height: 20)
-                        Spacer()
-                    }
                 }
             }
 
@@ -40,16 +37,18 @@ struct MatchRow: View {
                         Button(action: {
                             self.takeMatch()
                         }) {
-                            Text("Offer")
+                            ActionButton(image: "gift", title: "Offer")
                         }
+                        .buttonStyle(ActionButtonStyle())
                     }
 
                     if match.holderCanSign && match.data.info.holderPubkeyHash == KeyManager.pubkeyHash(for: holderAddress) {
                         Button(action: {
                             self.signMatch()
                         }) {
-                            Text("Sign (Holder)")
+                            ActionButton(image: "sign", title: "Sign")
                         }
+                        .buttonStyle(ActionButtonStyle())
                     }
                 }
 
@@ -58,8 +57,9 @@ struct MatchRow: View {
                         Button(action: {
                             self.confirm()
                         }) {
-                            Text("Sign & Confirm")
+                            ActionButton(image: "sign", title: "Sign & confirm")
                         }
+                        .buttonStyle(ActionButtonStyle())
                     }
                 }
 
