@@ -4,7 +4,7 @@
 // 
 
 import Foundation
-import CKB
+import CKBFoundation
 import secp256k1
 
 // Dummy key manager. Don't do nothing.

@@ -10,7 +10,6 @@ Gringotts client GUI powered by SwiftUI.
 * Xcode 11.4
 * Swift 5.2
 * macOS 10.15
-* libsodium: `brew install libsodium`
 
 ## Warning
 
